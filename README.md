@@ -4,11 +4,11 @@ Track your job applications from Handshake and automatically sync them to Google
 
 ## Features
 
-- ✅ **Auto-Track**: When you apply to a job on Handshake, the extension asks if you want to track it
-- ✅ **Google Sheets Sync**: All jobs automatically sync to your Google Sheets
-- ✅ **Applied & Saved**: Track both jobs you've applied to AND jobs you've saved for later
-- ✅ **Quick Access**: Click any job in the popup to open it in a new tab
-- ✅ **Local Backup**: Jobs are also stored locally as backup
+-  **Auto-Track**: When you apply to a job on Handshake, the extension asks if you want to track it
+-  **Google Sheets Sync**: All jobs automatically sync to your Google Sheets
+-  **Applied & Saved**: Track both jobs you've applied to AND jobs you've saved for later
+-  **Quick Access**: Click any job in the popup to open it in a new tab
+-  **Local Backup**: Jobs are also stored locally as backup
 
 ## Installation
 
@@ -85,7 +85,7 @@ Edit `manifest.json` and replace `YOUR_CLIENT_ID_HERE` with your actual Client I
 - `instructions.html` - Setup guide
 - `README.md` - This file
 
-##Contacts
+## Contacts
 - Make sure to contact mmbow@terpmail.umd.edu & for any questions / concerns,
 or additions to add onto our extention, thank you for reading! 
 
