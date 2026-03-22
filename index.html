@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <meta charset="UTF-8" />
+ <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+ <title>Handshake Job Tracker</title>
+    <link rel="stylesheet" href="CSSExtension.css" />
+</head>
+<body>
+ <div class="container">
+   <!-- Header -->
+   <div class="header">
+     <div class="logo">
+       <span class="logo-icon">
+        <img src="Handshake_Icon.png" alt="Handshake Icon" width="30" class="png">
+      </span>
+       <h1 class="logo-name">Job Tracker</h1>
+     </div>
+     <div class="status-indicator" id="statusIndicator">
+       <span class="status-dot"></span>
+       <span class="status-text">Not connected</span>
+     </div>
+   </div>
+
+<!-- Connection Section -->
+<div class="connect-banner">
+  <div>
+    <div class="connect-banner-title">Connect Google Sheets</div>
+    <div class="connect-banner-sub">Sync your job applications</div>
+  </div>
+  <button class="btn-connect" id="connectBtn">Connect</button>
+</div>
+
+
+
+   <!-- This is the old connection section Mansour. Keeping it just in case.
+
+   <div class="section" id="connectionSection">
+     <div class="connect-button-container">
+       <button id="connectBtn" class="btn-connect">
+         🔗 Connect Google Sheets
+       </button>
+     </div>
+     <p class="helper-text" id="helperText">
+       Connect your Google Sheets to automatically track jobs you apply to on Handshake.
+     </p>
+   </div> -->
+
+
+   <!-- Tabs -->
+   <div class="tabs">
+     <button class="tab active" data-tab="applied">Applied</button>
+     <button class="tab" data-tab="saved">Saved</button>
+   </div> 
+
+  <script src="SavedAndAppliedJobs.js"></script>
+
+
+   <!-- Applied Jobs Section -->
+   <div class="tab-content active" id="applied-content">
+     <div class="jobs-list" id="appliedJobs">
+       <div class="empty-state">
+        <div class="empty-icon">📭</div>
+         <p>No applied jobs yet</p>
+         <small>When you apply to a job on Handshake, click "Yes" to track it here.</small>
+       </div>
+     </div>
+   </div>
+
+
+   <!-- Saved Jobs Section -->
+   <div class="tab-content" id="saved-content">
+     <div class="jobs-list" id="savedJobs">
+       <div class="empty-state">
+        <div class="empty-icon">📭</div>
+         <p>No saved jobs yet</p>
+         <small>Save jobs on Handshake to track them here.</small>
+       </div>
+     </div>
+   </div>
+
+
+   <!-- Actions -->
+   <div class="actions">
+     <button id="refreshBtn" class="btn-ghost">🔄 Refresh</button>
+     <button id="clearBtn" class="btn-ghost btn-ghost-danger">🗑️ Clear All</button>
+   </div>
+
+
+   <!-- Spreadsheet Link -->
+   <div class="spreadsheet-link" id="spreadsheetLink" style="display: none;">
+     <a href="#" target="_blank" id="openSpreadsheet">
+       📊 Open Google Sheets
+     </a>
+   </div>
+ </div>
+
+<!-- <form 
+  method="POST" 
+  action="https://script.google.com/macros/s/AKfycbyVvtulX1Kko0yk7HbItPeOXnH5LbT5Z_00tnLWgMyo6dJOfFZo0bDPe3Gll3WhZUmgGA/exec"
+  autocomplete="on"
+>
+  <input name="Email" type="email" placeholder="Email" required autocomplete="email">
+  <input name="Name" type="text" placeholder="Name" required autocomplete="name">
+  <button type="submit">Send</button>
+</form> -->
+
+
+<script src="popup.js"></script>
+<script src="background.js"></script>
+</body>
+</html>
