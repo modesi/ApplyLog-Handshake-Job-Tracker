@@ -20,5 +20,15 @@
         document.querySelector('.tab[data-tab="saved"]').classList.remove('active');
     }
 
+    function switchToContact() {
+        document.getElementById("contact-content").classList.add("active");
+        document.getElementById("saved-content").classList.remove("active");
+        document.getElementById("applied-content").classList.remove("active");
+        
+        document.querySelector('.tab[data-tab="contact"]').classList.add('active');
+        document.querySelector('.tab[data-tab="saved"]').classList.remove('active');
+        document.querySelector('.tab[data-tab="applied"]').classList.remove('active');
+}
+
 
     
