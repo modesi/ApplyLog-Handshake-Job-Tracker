@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <meta charset="UTF-8" />
+ <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+ <title>Handshake Job Tracker</title>
+    <link rel="stylesheet" href="CSSExtension.css" />
+</head>
+<body>
+ <div class="container">
+   <div class="header">
+     <div class="logo">
+       <span class="logo-icon">
+        <img src="applylog128butbetter.png" alt="ApplyLog Logo" width="30" class="png">
+      </span>
+       <h1 class="logo-name">Job Tracker</h1>
+     </div>
+     <div class="status-indicator" id="statusIndicator">
+       <span class="status-dot"></span>
+       <span class="status-text">Not connected</span>
+     </div>
+   </div>
+
+<div class="connect-banner" id="connectBanner">
+  <div>
+    <div class="connect-banner-title">Connect Google Sheets</div>
+    <div class="connect-banner-sub">Sync your job applications</div>
+  </div>
+  <button class="btn-connect" id="connectBtn">Connect</button>
+</div>
+
+   <div class="tabs">
+     <button class="tab active" data-tab="applied">Applied</button>
+     <button class="tab" data-tab="saved">Saved</button>
+     <button class="tab" data-tab="progress">Progress</button>
+   </div> 
+
+  <script src="SavedAndAppliedJobs.js"></script>
+
+
+   <div class="tab-content active" id="applied-content">
+     <div class="jobs-list" id="appliedJobs">
+       <div class="empty-state">
+        <div class="empty-icon">📭</div>
+         <p>No applied jobs yet</p>
+         <small>When you apply to a job on Handshake, click "Yes" to track it here.</small>
+       </div>
+     </div>
+   </div>
+
+   <div class="tab-content" id="saved-content">
+     <div class="jobs-list" id="savedJobs">
+       <div class="empty-state">
+        <div class="empty-icon">📭</div>
+         <p>No saved jobs yet</p>
+         <small>Save jobs on Handshake to track them here.</small>
+       </div>
+     </div>
+   </div>
+
+   <div class="tab-content" id="progress-content">
+     <div class="jobs-list" id="progressJobs">
+       <div class="empty-state">
+        <div class="empty-icon">📈</div>
+         <p>No jobs in progress</p>
+         <small>Interviewing, offer, and rejected jobs will show up here.</small>
+       </div>
+     </div>
+   </div>
+
+   <div class="manual-entry">
+     <button class="manual-entry-toggle" id="manualEntryToggle" type="button">
+       ➕ Add Job
+     </button>
+     <form class="manual-entry-form" id="manualEntryForm" style="display: none;">
+       <input type="text" id="jobTitleInput" class="form-input" placeholder="Job title" required>
+       <input type="text" id="companyInput" class="form-input" placeholder="Company" required>
+       <div class="form-row">
+         <select id="statusInput" class="form-input">
+           <option value="Applied">Applied</option>
+           <option value="Saved">Saved</option>
+           <option value="Interviewing">Interviewing</option>
+           <option value="Offer">Offer</option>
+           <option value="Rejected">Rejected</option>
+         </select>
+         <select id="typeInput" class="form-input">
+           <option value="Internship">Internship</option>
+           <option value="Full-Time">Full-Time</option>
+           <option value="Part-Time">Part-Time</option>
+         </select>
+       </div>
+       <div class="form-row">
+         <input type="text" id="locationInput" class="form-input" placeholder="Location">
+         <input type="text" id="salaryInput" class="form-input" placeholder="Salary (optional)">
+       </div>
+       <div class="form-row">
+         <div class="field-with-label">
+           <label class="field-label" for="deadlineInput">Deadline</label>
+           <input type="date" id="deadlineInput" class="form-input">
+         </div>
+         <input type="url" id="linkInput" class="form-input" placeholder="Link (optional)">
+       </div>
+       <textarea id="notesInput" class="form-input" placeholder="Notes (optional)" rows="2"></textarea>
+       <button type="submit" class="btn-connect btn-manual-submit" id="manualSubmitBtn">Add to Sheet</button>
+       <div class="manual-feedback" id="manualFeedback"></div>
+     </form>
+   </div>
+
+   <div class="manual-entry">
+     <button class="manual-entry-toggle" id="importToggle" type="button">
+       🔗 Import From Old Spreadsheet
+     </button>
+     <div class="manual-entry-form" id="importForm" style="display: none;">
+       <div class="field-with-label">
+         <label class="field-label" for="oldSheetInput">Old Spreadsheet Link or ID</label>
+         <input type="text" id="oldSheetInput" class="form-input" placeholder="https://docs.google.com/spreadsheets/d/...">
+       </div>
+       <button type="button" class="btn-connect btn-manual-submit" id="previewImportBtn">Preview Import</button>
+       <div id="importPreviewArea"></div>
+       <div class="manual-feedback" id="importFeedback"></div>
+     </div>
+   </div>
+
+   <div class="actions">
+     <button id="clearBtn" class="btn-ghost btn-ghost-danger">🗑️ Clear Applied</button>
+     <button id="disconnectBtn" class="btn-ghost btn-ghost-danger btn-icon-only" title="Disconnect">🔌</button>
+   </div>
+
+   <div class="spreadsheet-link" id="spreadsheetLink" style="display: none;">
+     <a href="#" target="_blank" id="openSpreadsheet" class="btn-sheets">
+       <span class="btn-sheets-icon">📊</span> Open Google Sheets
+     </a>
+   </div>
+ </div>
+
+<script src="popup.js"></script>
+<script src="linkSpreadsheet.js"></script>
+<script src="background.js"></script>
+</body>
+</html>
