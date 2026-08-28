@@ -238,6 +238,25 @@ body {
   color: var(--muted);
 }
 
+/* ── SEARCH BAR ── */
+.search-bar {
+  display: flex;
+}
+
+.search-bar .form-input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  background: var(--card);
+}
+
+.search-bar .form-input:focus {
+  border-color: var(--gold);
+}
+
 /* ── TABS ── */
 .tabs {
   display: flex;
@@ -387,21 +406,22 @@ body {
   background: #fdeaec;
 }
 
-.job-move-btn {
+.job-edit-btn {
   font-family: 'Syne', sans-serif;
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 700;
   color: var(--ink);
   background: #fff8db;
   border: 1px solid var(--gold);
   border-radius: 5px;
-  padding: 3px 6px;
+  padding: 3px 7px;
   cursor: pointer;
   white-space: nowrap;
   transition: all 0.15s;
+  line-height: 1;
 }
 
-.job-move-btn:hover {
+.job-edit-btn:hover {
   background: var(--accent);
   color: #fff;
   border-color: var(--accent);
@@ -662,4 +682,82 @@ textarea.form-input {
   padding: 7px 0;
   text-align: center;
   font-size: 14px;
+}
+
+/* ── EDIT MODAL ── */
+.edit-modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 100;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 16px 10px;
+  overflow-y: auto;
+}
+
+.edit-modal-overlay.open {
+  display: flex;
+}
+
+.edit-modal {
+  background: var(--card);
+  border-radius: 12px;
+  padding: 14px;
+  width: 100%;
+  max-width: 306px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.edit-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.edit-modal-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 14px;
+  color: var(--ink);
+}
+
+.edit-modal-close {
+  background: none;
+  border: none;
+  font-size: 15px;
+  line-height: 1;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 3px 6px;
+  border-radius: 5px;
+  transition: all 0.15s;
+}
+
+.edit-modal-close:hover {
+  color: var(--accent);
+  background: #fdeaec;
+}
+
+#editJobForm {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.edit-modal-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.btn-edit-cancel {
+  flex: 1;
+}
+
+.btn-edit-save {
+  flex: 1;
+  box-shadow: none;
 }

@@ -245,25 +245,44 @@ function appendRowToSheet(spreadsheetId, gid, token, rowValues) {
 }
 
 // Disconnect the current Google account: revoke the OAuth token so it's no longer
-// valid, remove it from Chrome's token cache, and forget the stored spreadsheet.
-// This lets the person reconnect with a different Google account afterward.
+// valid, wipe EVERY cached token for this extension (not just the one we grabbed
+// just now), and forget the stored spreadsheet. This lets the person reconnect
+// with a different Google account afterward.
+//
+// Bug fix: previously this only called removeCachedAuthToken() for the single
+// token fetched at disconnect time. Chrome's identity API can still be holding
+// other cached tokens for the same account, so a later interactive getAuthToken()
+// call would silently reuse one of those instead of prompting for account choice.
+// clearAllCachedAuthTokens() empties the whole cache, so the next interactive
+// sign-in always goes through Google's account chooser.
 function disconnectAccount() {
     chrome.identity.getAuthToken({ interactive: false }, (token) => {
-        if (chrome.runtime.lastError || !token) {
-            // No token to revoke — just clear local state
-            finishDisconnect();
+        const hasToken = !token || chrome.runtime.lastError ? null : token;
+
+        const wipeCacheAndFinish = () => {
+            if (chrome.identity.clearAllCachedAuthTokens) {
+                chrome.identity.clearAllCachedAuthTokens(() => finishDisconnect());
+            } else {
+                // Older Chrome without clearAllCachedAuthTokens — fall back to
+                // removing just the one token we had.
+                if (hasToken) {
+                    chrome.identity.removeCachedAuthToken({ token: hasToken }, finishDisconnect);
+                } else {
+                    finishDisconnect();
+                }
+            }
+        };
+
+        if (!hasToken) {
+            // No token to revoke — still clear the cache in case stale entries remain
+            wipeCacheAndFinish();
             return;
         }
 
         // Revoke server-side so Google forgets this app's grant for the account
-        fetch(`https://oauth2.googleapis.com/revoke?token=${token}`, { method: 'POST' })
+        fetch(`https://oauth2.googleapis.com/revoke?token=${hasToken}`, { method: 'POST' })
         .catch(error => console.error('Error revoking token:', error))
-        .finally(() => {
-            // Remove it from Chrome's local cache regardless of whether revoke succeeded
-            chrome.identity.removeCachedAuthToken({ token }, () => {
-                finishDisconnect();
-            });
-        });
+        .finally(wipeCacheAndFinish);
     });
 }
 

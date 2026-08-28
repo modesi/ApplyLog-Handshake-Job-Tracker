@@ -8,7 +8,63 @@ document.addEventListener("DOMContentLoaded", () => {
       if (clearBtn) {
           clearBtn.addEventListener("click", clearActiveTabJobs);
       }
+
+      // Search bar — filters the currently loaded jobs by title/company as the user types
+      const searchInput = document.getElementById("jobSearchInput");
+      if (searchInput) {
+          searchInput.addEventListener("input", () => {
+              renderAllTabs(filterJobsBySearch(allJobsCache, getSearchQuery()));
+          });
+      }
+
+      // Edit modal wiring
+      const editForm = document.getElementById("editJobForm");
+      const editClose = document.getElementById("editModalClose");
+      const editCancel = document.getElementById("editModalCancel");
+      const editOverlay = document.getElementById("editModalOverlay");
+      if (editForm) editForm.addEventListener("submit", saveEditedJob);
+      if (editClose) editClose.addEventListener("click", closeEditModal);
+      if (editCancel) editCancel.addEventListener("click", closeEditModal);
+      if (editOverlay) {
+          // Click on the dark backdrop (not the card itself) closes the modal
+          editOverlay.addEventListener("click", (e) => {
+              if (e.target === editOverlay) closeEditModal();
+          });
+      }
     });
+
+    // Cache of the last full set of jobs pulled from the sheet (unfiltered),
+    // so the search bar can filter client-side without refetching, and so the
+    // edit modal has full job details to pre-fill from.
+    let allJobsCache = [];
+
+    // Which job (by sheet row) is currently open in the edit modal
+    let currentEditingRow = null;
+
+    function getSearchQuery() {
+        const input = document.getElementById('jobSearchInput');
+        return input ? input.value.trim().toLowerCase() : '';
+    }
+
+    // Filter jobs by title or company, case-insensitive
+    function filterJobsBySearch(jobs, query) {
+        if (!query) return jobs;
+        return jobs.filter(job =>
+            (job.title || '').toLowerCase().includes(query) ||
+            (job.company || '').toLowerCase().includes(query)
+        );
+    }
+
+    // Split jobs into the three tabs and render each list
+    function renderAllTabs(jobs) {
+        const applied = jobs.filter(j => tabForStatus(j.status) === 'applied');
+        const saved = jobs.filter(j => tabForStatus(j.status) === 'saved');
+        const inProgress = jobs.filter(j => tabForStatus(j.status) === 'progress');
+
+        renderJobList('appliedJobs', applied, 'applied', 'No applied jobs yet', 'When you apply to a job on Handshake, click "Yes" to track it here.');
+        renderJobList('savedJobs', saved, 'saved', 'No saved jobs yet', 'Save jobs on Handshake to track them here.');
+        renderJobList('progressJobs', inProgress, 'progress', 'No jobs in progress', 'Interviewing, offer, and rejected jobs will show up here.');
+    }
 
     const TABS = ['applied', 'saved', 'progress'];
 
@@ -64,13 +120,8 @@ document.addEventListener("DOMContentLoaded", () => {
                         })
                         .filter(job => job.title); // skip blank rows
 
-                    const applied = jobs.filter(j => tabForStatus(j.status) === 'applied');
-                    const saved = jobs.filter(j => tabForStatus(j.status) === 'saved');
-                    const inProgress = jobs.filter(j => tabForStatus(j.status) === 'progress');
-
-                    renderJobList('appliedJobs', applied, 'applied', 'No applied jobs yet', 'When you apply to a job on Handshake, click "Yes" to track it here.');
-                    renderJobList('savedJobs', saved, 'saved', 'No saved jobs yet', 'Save jobs on Handshake to track them here.');
-                    renderJobList('progressJobs', inProgress, 'progress', 'No jobs in progress', 'Interviewing, offer, and rejected jobs will show up here.');
+                    allJobsCache = jobs;
+                    renderAllTabs(filterJobsBySearch(jobs, getSearchQuery()));
                 })
                 .catch(error => console.error('Error loading jobs from sheet:', error));
             });
@@ -79,14 +130,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Reset all three tabs back to their empty-state placeholders (e.g. after disconnect)
     function resetJobLists() {
-        renderJobList('appliedJobs', [], 'applied', 'No applied jobs yet', 'When you apply to a job on Handshake, click "Yes" to track it here.');
-        renderJobList('savedJobs', [], 'saved', 'No saved jobs yet', 'Save jobs on Handshake to track them here.');
-        renderJobList('progressJobs', [], 'progress', 'No jobs in progress', 'Interviewing, offer, and rejected jobs will show up here.');
+        allJobsCache = [];
+        renderAllTabs([]);
     }
 
-    // Render a list of {title, company, sheetRow} jobs into the given container,
-    // or fall back to an empty-state message if there are none. listType is
-    // 'applied' or 'saved' — saved cards additionally get a "Move to Applied" button.
+    // Render a list of job objects into the given container, or fall back to
+    // an empty-state message if there are none. Every card gets an Edit button
+    // (opens the edit modal, pre-filled) and a Delete button.
     function renderJobList(containerId, jobs, listType, emptyTitle, emptySubtext) {
         const container = document.getElementById(containerId);
         if (!container) return;
@@ -107,7 +157,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 <div class="job-card-top">
                     <div class="job-title">${escapeHtml(job.title)}</div>
                     <div class="job-card-buttons">
-                        ${listType === 'saved' ? `<button class="job-move-btn" data-row="${job.sheetRow}" title="Move to Applied">→ Applied</button>` : ''}
+                        <button class="job-edit-btn" data-row="${job.sheetRow}" title="Edit">✏️</button>
                         <button class="job-delete-btn" data-row="${job.sheetRow}" title="Delete">🗑️</button>
                     </div>
                 </div>
@@ -128,12 +178,12 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         });
 
-        // Wire up "move to applied" buttons (saved list only)
-        container.querySelectorAll('.job-move-btn').forEach(btn => {
+        // Wire up edit buttons
+        container.querySelectorAll('.job-edit-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 const row = parseInt(btn.getAttribute('data-row'), 10);
-                moveJobToApplied(row);
+                openEditModal(row);
             });
         });
     }
@@ -195,25 +245,82 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Change a job's Status cell (column C) from Saved to Applied, then reload
-    function moveJobToApplied(sheetRow) {
+    // Open the edit modal and pre-fill it with the given job's current data
+    function openEditModal(sheetRow) {
+        const job = allJobsCache.find(j => j.sheetRow === sheetRow);
+        if (!job) {
+            console.error('Could not find job data for row', sheetRow);
+            return;
+        }
+
+        currentEditingRow = sheetRow;
+
+        document.getElementById('editTitleInput').value = job.title || '';
+        document.getElementById('editCompanyInput').value = job.company || '';
+        document.getElementById('editStatusInput').value = job.status || 'Saved';
+        document.getElementById('editTypeInput').value = job.type || 'Internship';
+        document.getElementById('editLocationInput').value = job.location || '';
+        document.getElementById('editSalaryInput').value = job.salary || '';
+        document.getElementById('editDeadlineInput').value = job.deadline || '';
+        document.getElementById('editLinkInput').value = job.link || '';
+        document.getElementById('editNotesInput').value = job.notes || '';
+        setFeedback(document.getElementById('editFeedback'), '', '');
+
+        document.getElementById('editModalOverlay').classList.add('open');
+    }
+
+    function closeEditModal() {
+        currentEditingRow = null;
+        document.getElementById('editModalOverlay').classList.remove('open');
+    }
+
+    // Save the edit modal's fields back to the job's row in the spreadsheet.
+    // The "Date Added" column is intentionally left untouched.
+    function saveEditedJob(event) {
+        event.preventDefault();
+        if (currentEditingRow === null) return;
+
+        const job = allJobsCache.find(j => j.sheetRow === currentEditingRow);
+        const originalDateAdded = job ? job.date : '';
+
+        const title = document.getElementById('editTitleInput').value.trim();
+        const company = document.getElementById('editCompanyInput').value.trim();
+        const status = document.getElementById('editStatusInput').value;
+        const type = document.getElementById('editTypeInput').value;
+        const location = document.getElementById('editLocationInput').value.trim();
+        const salary = document.getElementById('editSalaryInput').value.trim();
+        const deadline = document.getElementById('editDeadlineInput').value;
+        const link = document.getElementById('editLinkInput').value.trim();
+        const notes = document.getElementById('editNotesInput').value.trim();
+
+        if (!title || !company) {
+            setFeedback(document.getElementById('editFeedback'), 'Please fill in job title and company.', 'error');
+            return;
+        }
+
+        const row = currentEditingRow;
+        const rowValues = [title, company, status, type, originalDateAdded, location, salary, deadline, link, notes];
+
         chrome.storage.sync.get(['spreadsheetId'], (result) => {
             if (!result.spreadsheetId) return;
 
             chrome.identity.getAuthToken({ interactive: true }, (token) => {
                 if (chrome.runtime.lastError || !token) {
                     console.error('Auth error:', chrome.runtime.lastError);
+                    setFeedback(document.getElementById('editFeedback'), 'Authentication failed. Try reconnecting.', 'error');
                     return;
                 }
 
-                const url = `https://sheets.googleapis.com/v4/spreadsheets/${result.spreadsheetId}/values/Sheet1!C${sheetRow}?valueInputOption=USER_ENTERED`;
+                setFeedback(document.getElementById('editFeedback'), 'Saving…', '');
+
+                const url = `https://sheets.googleapis.com/v4/spreadsheets/${result.spreadsheetId}/values/Sheet1!A${row}:J${row}?valueInputOption=USER_ENTERED`;
                 fetch(url, {
                     method: 'PUT',
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ values: [['Applied']] })
+                    body: JSON.stringify({ values: [rowValues] })
                 })
                 .then(response => {
                     if (!response.ok) {
@@ -221,8 +328,14 @@ document.addEventListener("DOMContentLoaded", () => {
                     }
                     return response.json();
                 })
-                .then(() => loadJobsFromSheet())
-                .catch(error => console.error('Error moving job to Applied:', error));
+                .then(() => {
+                    closeEditModal();
+                    loadJobsFromSheet();
+                })
+                .catch(error => {
+                    console.error('Error saving edited job:', error);
+                    setFeedback(document.getElementById('editFeedback'), '❌ Failed to save — see console.', 'error');
+                });
             });
         });
     }
