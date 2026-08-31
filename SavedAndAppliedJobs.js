@@ -25,7 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const clearBtn = document.getElementById("clearBtn");
         if (!clearBtn) return;
         const labels = { applied: 'Clear Applied', saved: 'Clear Saved', progress: 'Clear Progress' };
-        clearBtn.textContent = `🗑️ ${labels[getActiveTab()] || 'Clear'}`;
+        clearBtn.textContent = `${labels[getActiveTab()] || 'Clear'}`;
     }
 
     // Column layout written by popup.js's addHeaderRow — keep these in sync
@@ -94,7 +94,6 @@ document.addEventListener("DOMContentLoaded", () => {
         if (jobs.length === 0) {
             container.innerHTML = `
                 <div class="empty-state">
-                    <div class="empty-icon">📭</div>
                     <p>${escapeHtml(emptyTitle)}</p>
                     <small>${escapeHtml(emptySubtext)}</small>
                 </div>

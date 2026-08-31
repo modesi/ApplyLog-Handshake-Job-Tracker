@@ -1,8 +1,7 @@
 {
   "name": "Handshake Job Tracker",
-  "key": "REDACTED",
   "description": "Track your job applications from Handshake and automatically sync them to Google Sheets!",
-  "version": "3",
+  "version": "4",
   "manifest_version": 3,
   "action": {
     "default_popup": "index.html",
