@@ -1,18 +1,13 @@
-/* ── ApplyLog Extension Styles ── */
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap');
 
 :root {
-  /* University of Maryland core brand colors (brand.umd.edu/colors) */
-  --ink: #000000;        /* Maryland Black */
-  --paper: #ffffff;
-  --accent: #e21833;     /* Maryland Red */
-  --accent2: #454545;    /* Maryland Dark Gray */
-  --gold: #ffd200;       /* Maryland Gold */
-  --gold-text: #8a6d00;  /* darkened gold for legible text-on-light-bg */
-  --bronze: #ad7231;     /* Bronze Testudo */
+  --ink: #efefef;
+  --paper: #212121;
+  --accent: #e21833;
+  --accent2: #454545;
+  --selected: #bdbdbd;
   --success: #16a34a;
-  --muted: #7f7f7f;      /* Maryland Medium Gray */
-  --border: #e6e6e6;     /* Maryland Light Gray */
+  --border: #e6e6e6;
   --card: #ffffff;
 }
 
@@ -33,7 +28,6 @@ body {
   gap: 10px;
 }
 
-/* ── HEADER ── */
 .header {
   display: flex;
   align-items: center;
@@ -91,18 +85,18 @@ body {
 .status-text {
   font-family: 'DM Sans', sans-serif;
   font-size: 10px;
-  color: var(--muted);
+  color: var(--ink);
 }
 
-/* ── CONNECT BANNER ── */
 .connect-banner {
-  background: var(--ink);
+  background: var(--paper);
   border-radius: 10px;
   padding: 12px 14px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
+  border: 1px solid var(--ink);
 }
 
 .connect-banner-title {
@@ -147,7 +141,6 @@ body {
   cursor: default;
 }
 
-/* ── CONNECTED BANNER ── */
 .connected-banner {
   background: #f0fdf4;
   border: 1px solid #bbf7d0;
@@ -206,7 +199,6 @@ body {
 
 .btn-sheets-icon { font-size: 13px; }
 
-/* ── STATS ROW ── */
 .stats-row {
   display: flex;
   gap: 6px;
@@ -235,10 +227,9 @@ body {
   font-size: 9px;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: var(--muted);
+  color: var(--ink);
 }
 
-/* ── TABS ── */
 .tabs {
   display: flex;
   gap: 4px;
@@ -256,7 +247,7 @@ body {
   font-family: 'DM Sans', sans-serif;
   font-size: 11px;
   font-weight: 600;
-  color: var(--muted);
+  color: var(--paper);
   cursor: pointer;
   transition: all 0.18s;
   white-space: nowrap;
@@ -264,12 +255,11 @@ body {
 
 .tab.active {
   background: var(--card);
-  color: var(--ink);
+  color: var(--paper);
   box-shadow: 0 1px 4px rgba(0,0,0,0.1);
   font-weight: 600;
 }
 
-/* ── TAB CONTENT ── */
 .tab-content {
   display: none;
   max-height: 220px;
@@ -282,11 +272,10 @@ body {
 .tab-content::-webkit-scrollbar-track { background: transparent; }
 .tab-content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
-/* ── EMPTY STATE ── */
 .empty-state {
   text-align: center;
   padding: 28px 16px;
-  color: var(--muted);
+  color: var(--ink);
 }
 
 .empty-icon {
@@ -305,12 +294,11 @@ body {
 .empty-state small {
   font-family: 'DM Mono', monospace;
   font-size: 10px;
-  color: var(--muted);
+  color: var(--ink);
   line-height: 1.5;
   display: block;
 }
 
-/* ── JOB CARDS ── */
 .jobs-list {
   display: flex;
   flex-direction: column;
@@ -358,7 +346,7 @@ body {
 .job-date {
   font-family: 'DM Mono', monospace;
   font-size: 9px;
-  color: var(--muted);
+  color: var(--ink);
   white-space: nowrap;
   flex-shrink: 0;
 }
@@ -377,7 +365,7 @@ body {
   line-height: 1;
   padding: 3px 5px;
   border-radius: 5px;
-  color: var(--muted);
+  color: var(--ink);
   flex-shrink: 0;
   transition: all 0.15s;
 }
@@ -423,7 +411,7 @@ body {
 .job-location, .job-salary {
   font-family: 'DM Mono', monospace;
   font-size: 10px;
-  color: var(--muted);
+  color: var(--ink);
 }
 
 .job-status-chip {
@@ -445,7 +433,6 @@ body {
   border-color: var(--gold);
 }
 
-/* ── MANUAL ENTRY (TESTING) ── */
 .manual-entry {
   border-top: 1px solid var(--border);
   padding-top: 8px;
@@ -454,19 +441,19 @@ body {
 .manual-entry-toggle {
   width: 100%;
   background: transparent;
-  border: 1.5px dashed var(--border);
+  border: 1.5px solid var(--border);
   border-radius: 8px;
   padding: 8px;
   font-family: 'DM Sans', sans-serif;
   font-size: 11px;
   font-weight: 700;
-  color: var(--muted);
+  color: var(--ink);
   cursor: pointer;
   transition: all 0.15s;
 }
 
 .manual-entry-toggle:hover {
-  border-color: var(--accent);
+  border-color: var(--success);
   color: var(--ink);
 }
 
@@ -475,7 +462,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  background: var(--card);
+  background: var(--paper);
   border: 1px solid var(--border);
   border-radius: 9px;
   padding: 10px;
@@ -501,7 +488,7 @@ body {
 .field-label {
   font-family: 'DM Mono', monospace;
   font-size: 9px;
-  color: var(--muted);
+  color: var(--ink);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
@@ -520,7 +507,7 @@ body {
 }
 
 .form-input:focus {
-  border-color: var(--gold);
+  border-color: var(--selected);
 }
 
 textarea.form-input {
@@ -541,13 +528,12 @@ textarea.form-input {
   font-size: 10px;
   text-align: center;
   min-height: 12px;
-  color: var(--muted);
+  color: var(--ink);
 }
 
 .manual-feedback.success { color: var(--success); }
 .manual-feedback.error { color: var(--accent); }
 
-/* ── IMPORT / LINK SPREADSHEET ── */
 .import-mapping {
   display: flex;
   flex-direction: column;
@@ -583,7 +569,7 @@ textarea.form-input {
 }
 
 .import-map-arrow {
-  color: var(--muted);
+  color: var(--ink);
   flex-shrink: 0;
 }
 
@@ -611,7 +597,7 @@ textarea.form-input {
 .import-summary {
   font-family: 'DM Mono', monospace;
   font-size: 9.5px;
-  color: var(--muted);
+  color: var(--ink);
   line-height: 1.5;
   margin-bottom: 2px;
 }
@@ -622,12 +608,17 @@ textarea.form-input {
   margin-top: 4px;
 }
 
-/* ── FOOTER ACTIONS ── */
 .actions {
   display: flex;
   gap: 6px;
   padding-top: 6px;
   border-top: 1px solid var(--border);
+}
+
+.btn-sheets {
+  display: flex;
+  background: var(--paper);
+  border: 1px solid var(--ink);
 }
 
 .btn-ghost {
@@ -639,7 +630,7 @@ textarea.form-input {
   font-family: 'DM Sans', sans-serif;
   font-size: 11px;
   font-weight: 700;
-  color: var(--muted);
+  color: var(--ink);
   cursor: pointer;
   transition: all 0.15s;
 }
