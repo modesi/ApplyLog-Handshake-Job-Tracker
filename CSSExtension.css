@@ -1,15 +1,16 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap');
 
 :root {
-  --ink: #efefef;
-  --paper: #212121;
+  --ink: #2D3748;
+  --paper: #BFD7EA;
   --accent: #e21833;
   --accent2: #454545;
   --selected: #bdbdbd;
   --success: #16a34a;
-  --border: #e6e6e6;
-  --card: #ffffff;
+  --border: #F4F6F8;
+  --card: #4A6FA5;
 }
+
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -247,7 +248,7 @@ body {
   font-family: 'DM Sans', sans-serif;
   font-size: 11px;
   font-weight: 600;
-  color: var(--paper);
+  color: var(--ink);
   cursor: pointer;
   transition: all 0.18s;
   white-space: nowrap;
@@ -306,8 +307,8 @@ body {
 }
 
 .job-card {
-  background: var(--card);
-  border: 1px solid var(--border);
+  background: var(--border);
+  border: 1px solid var(--card);
   border-radius: 9px;
   padding: 11px 12px;
   cursor: pointer;
@@ -440,14 +441,14 @@ body {
 
 .manual-entry-toggle {
   width: 100%;
-  background: transparent;
+  background: var(--card);
   border: 1.5px solid var(--border);
   border-radius: 8px;
   padding: 8px;
   font-family: 'DM Sans', sans-serif;
   font-size: 11px;
   font-weight: 700;
-  color: var(--ink);
+  color: var(--paper);
   cursor: pointer;
   transition: all 0.15s;
 }
@@ -611,8 +612,7 @@ textarea.form-input {
 .actions {
   display: flex;
   gap: 6px;
-  padding-top: 6px;
-  border-top: 1px solid var(--border);
+  color: var(--paper);
 }
 
 .btn-sheets {
