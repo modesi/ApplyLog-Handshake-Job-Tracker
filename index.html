@@ -29,6 +29,10 @@
   <button class="btn-connect" id="connectBtn">Connect</button>
 </div>
 
+   <div class="search-bar">
+     <input type="text" id="jobSearchInput" class="form-input" placeholder="Search by title or company…">
+   </div>
+
    <div class="tabs">
      <button class="tab active" data-tab="applied">Applied</button>
      <button class="tab" data-tab="saved">Saved</button>
@@ -127,6 +131,17 @@
      <a href="#" target="_blank" id="openSpreadsheet" class="btn-sheets">
        Open Spreadsheet
      </a>
+   </div>
+ </div>
+
+ <div class="modal-overlay" id="confirmModalOverlay" style="display: none;">
+   <div class="modal-card">
+     <div class="modal-title" id="confirmModalTitle">Are you sure?</div>
+     <div class="modal-message" id="confirmModalMessage"></div>
+     <div class="modal-actions">
+       <button class="btn-ghost" id="confirmModalCancel" type="button">Cancel</button>
+       <button class="btn-connect" id="confirmModalConfirm" type="button">Confirm</button>
+     </div>
    </div>
  </div>
 

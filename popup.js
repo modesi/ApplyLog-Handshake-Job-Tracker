@@ -75,15 +75,63 @@ document.addEventListener("DOMContentLoaded", function() {
     const disconnectBtn = document.getElementById("disconnectBtn");
     if (disconnectBtn) {
         disconnectBtn.addEventListener("click", () => {
-            const confirmed = confirm(
-                'Disconnect Google Sheets? You\'ll need to reconnect (and can choose a different account) to sync again.'
-            );
-            if (confirmed) {
-                disconnectAccount();
-            }
+            showConfirmModal({
+                title: 'Disconnect Google Sheets?',
+                message: "You'll need to reconnect (and can choose a different account) to sync again.",
+                confirmLabel: 'Disconnect',
+                onConfirm: disconnectAccount
+            });
         });
     }
 });
+
+// Themed replacement for window.confirm() — shows the modal defined in
+// index.html (#confirmModalOverlay) styled to match the extension, instead
+// of the browser's unstylable native confirm dialog. Falls back to a native
+// confirm if the modal markup is somehow missing.
+function showConfirmModal({ title = 'Are you sure?', message = '', confirmLabel = 'Confirm', showCancel = true, onConfirm }) {
+    const overlay = document.getElementById('confirmModalOverlay');
+    const titleEl = document.getElementById('confirmModalTitle');
+    const messageEl = document.getElementById('confirmModalMessage');
+    const confirmBtn = document.getElementById('confirmModalConfirm');
+    const cancelBtn = document.getElementById('confirmModalCancel');
+
+    if (!overlay || !titleEl || !messageEl || !confirmBtn || !cancelBtn) {
+        // Fallback to native dialogs if the modal markup is somehow missing
+        if (!showCancel) { alert(message || title); if (onConfirm) onConfirm(); return; }
+        if (confirm(message || title) && onConfirm) onConfirm();
+        return;
+    }
+
+    titleEl.textContent = title;
+    messageEl.textContent = message;
+    confirmBtn.textContent = confirmLabel;
+    cancelBtn.style.display = showCancel ? '' : 'none';
+    overlay.style.display = 'flex';
+
+    const cleanup = () => {
+        overlay.style.display = 'none';
+        cancelBtn.style.display = '';
+        confirmBtn.removeEventListener('click', handleConfirm);
+        cancelBtn.removeEventListener('click', handleCancel);
+        overlay.removeEventListener('click', handleOverlayClick);
+        document.removeEventListener('keydown', handleKeydown);
+    };
+    const handleConfirm = () => { cleanup(); if (onConfirm) onConfirm(); };
+    const handleCancel = () => cleanup();
+    const handleOverlayClick = (e) => { if (e.target === overlay) cleanup(); };
+    const handleKeydown = (e) => { if (e.key === 'Escape') cleanup(); };
+
+    confirmBtn.addEventListener('click', handleConfirm);
+    cancelBtn.addEventListener('click', handleCancel);
+    overlay.addEventListener('click', handleOverlayClick);
+    document.addEventListener('keydown', handleKeydown);
+}
+
+// Themed replacement for window.alert() — single-button variant of the confirm modal
+function showInfoModal(title, message, okLabel = 'OK') {
+    showConfirmModal({ title, message, confirmLabel: okLabel, showCancel: false, onConfirm: () => {} });
+}
 
 // Check on popup open whether we already have a stored spreadsheet + valid token
 function checkConnectionStatus() {
