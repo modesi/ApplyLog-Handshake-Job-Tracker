@@ -3,7 +3,7 @@
 <head>
  <meta charset="UTF-8" />
  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
- <title>Handshake Job Tracker</title>
+ <title>ApplyLog Job Tracker</title>
     <link rel="stylesheet" href="CSSExtension.css" />
 </head>
 <body>
@@ -11,13 +11,17 @@
    <div class="header">
      <div class="logo">
        <span class="logo-icon">
-        <img src="applylog128butbetter.png" alt="ApplyLog Logo" width="30" class="png">
+        <img src="ApplyLogIcon.png" alt="ApplyLog Logo" width="33" class="png">
       </span>
-       <h1 class="logo-name">Job Tracker</h1>
+       <h1 class="logo-name">ApplyLog</h1>
      </div>
      <div class="status-indicator" id="statusIndicator">
        <span class="status-dot"></span>
        <span class="status-text">Not connected</span>
+       <button class="import-icon-btn" id="importToggle" type="button" aria-label="Import from old spreadsheet">
+         ↥
+         <span class="import-tooltip">Import jobs from an old spreadsheet</span>
+       </button>
      </div>
    </div>
 
@@ -28,6 +32,25 @@
   </div>
   <button class="btn-connect" id="connectBtn">Connect</button>
 </div>
+
+   <div class="stats-row" id="statsRow">
+     <div class="stat-card" id="statCardApplied">
+       <div class="stat-num" id="statAppliedCount">0</div>
+       <div class="stat-label">Applied</div>
+     </div>
+     <div class="stat-card" id="statCardSaved">
+       <div class="stat-num" id="statSavedCount">0</div>
+       <div class="stat-label">Saved</div>
+     </div>
+     <div class="stat-card" id="statCardProgress">
+       <div class="stat-num" id="statProgressCount">0</div>
+       <div class="stat-label">In Progress</div>
+     </div>
+   </div>
+
+   <div class="search-bar">
+     <input type="text" id="jobSearchInput" class="form-input" placeholder="Search by title or company…">
+   </div>
 
    <div class="tabs">
      <button class="tab active" data-tab="applied">Applied</button>
@@ -42,7 +65,7 @@
      <div class="jobs-list" id="appliedJobs">
        <div class="empty-state">
          <p>No applied jobs yet</p>
-         <small>When you apply to a job on Handshake, click "Yes" to track it here.</small>
+         <small>When you apply to a job use the Add Job button to track it.</small>
        </div>
      </div>
    </div>
@@ -51,7 +74,7 @@
      <div class="jobs-list" id="savedJobs">
        <div class="empty-state">
          <p>No saved jobs yet</p>
-         <small>Save jobs on Handshake to track them here.</small>
+         <small>Save jobs to track them here.</small>
        </div>
      </div>
    </div>
@@ -66,7 +89,7 @@
    </div>
 
    <div class="manual-entry">
-     <button class="manual-entry-toggle" id="manualEntryToggle" type="button">
+     <button class="manual-entry-toggle btn-add-job" id="manualEntryToggle" type="button">
       Add Job
      </button>
      <form class="manual-entry-form" id="manualEntryForm" style="display: none;">
@@ -103,14 +126,11 @@
      </form>
    </div>
 
-   <div class="manual-entry">
-     <button class="manual-entry-toggle" id="importToggle" type="button">
-      Import From Old Spreadsheet
-     </button>
+   <div class="manual-entry manual-entry-compact" id="importFormWrapper">
      <div class="manual-entry-form" id="importForm" style="display: none;">
        <div class="field-with-label">
          <label class="field-label" for="oldSheetInput">Old Spreadsheet Link or ID</label>
-         <input type="text" id="oldSheetInput" class="form-input" placeholder="https://docs.google.com/spreadsheets/d/...">
+         <input type="text" id="oldSheetInput" class="form-input" placeholder="https:docs.google.com/spreadsheets/d/...">
        </div>
        <button type="button" class="btn-connect btn-manual-submit" id="previewImportBtn">Preview Import</button>
        <div id="importPreviewArea"></div>
@@ -130,8 +150,20 @@
    </div>
  </div>
 
+ <div class="modal-overlay" id="confirmModalOverlay" style="display: none;">
+   <div class="modal-card">
+     <div class="modal-title" id="confirmModalTitle">Are you sure?</div>
+     <div class="modal-message" id="confirmModalMessage"></div>
+     <div class="modal-actions">
+       <button class="btn-ghost" id="confirmModalCancel" type="button">Cancel</button>
+       <button class="btn-connect" id="confirmModalConfirm" type="button">Confirm</button>
+     </div>
+   </div>
+ </div>
+
 <script src="popup.js"></script>
 <script src="linkSpreadsheet.js"></script>
+<script src="formDraftPersistence.js"></script>
 <script src="background.js"></script>
 </body>
 </html>

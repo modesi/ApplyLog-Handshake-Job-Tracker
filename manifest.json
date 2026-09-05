@@ -5,7 +5,7 @@
   "manifest_version": 3,
   "action": {
     "default_popup": "index.html",
-    "default_icon": "applylog128butbetter.png"
+    "default_icon": "ApplyLogIcon.png"
   },
   "permissions": [
     "identity",

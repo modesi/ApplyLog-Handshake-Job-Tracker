@@ -1,5 +1,3 @@
-// linkSpreadsheet.js
-//
 // Lets a user link an old job-tracking spreadsheet and pull its data into the
 // ApplyLog sheet this extension manages. Old sheets can have more, fewer, or
 // differently-named columns than ApplyLog's ten fixed columns — this module:
@@ -10,7 +8,6 @@
 //      appends any UNRECOGNIZED columns as brand-new columns on the ApplyLog
 //      sheet (reusing them on repeat imports) so nothing is ever discarded.
 
-// Canonical ApplyLog field order — must match SHEET_HEADERS in popup.js.
 const CANONICAL_FIELD_ORDER = ['title', 'company', 'status', 'type', 'date', 'location', 'salary', 'deadline', 'link', 'notes'];
 
 // Header text aliases used to auto-detect which old column is which field.
@@ -27,7 +24,6 @@ const IMPORT_FIELD_ALIASES = {
     notes:    ['notes', 'note', 'comments', 'comment', 'description']
 };
 
-// Parsed old-sheet data, held between the "Preview" and "Confirm" steps.
 let pendingImport = null;
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -103,8 +99,8 @@ function previewImport() {
 
         setFeedback(feedbackEl, 'Reading old spreadsheet…', '');
 
-        chrome.identity.getAuthToken({ interactive: true }, (token) => {
-            if (chrome.runtime.lastError || !token) {
+        requestAuthToken(true, (token, authError) => {
+            if (authError || !token) {
                 setFeedback(feedbackEl, 'Authentication failed. Try reconnecting.', 'error');
                 return;
             }
@@ -232,8 +228,8 @@ function confirmImport() {
 
         setFeedback(feedbackEl, 'Importing…', '');
 
-        chrome.identity.getAuthToken({ interactive: true }, (token) => {
-            if (chrome.runtime.lastError || !token) {
+        requestAuthToken(true, (token, authError) => {
+            if (authError || !token) {
                 setFeedback(feedbackEl, 'Authentication failed. Try reconnecting.', 'error');
                 return;
             }
