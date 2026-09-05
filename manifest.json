@@ -1,6 +1,6 @@
 {
   "name": "Handshake Job Tracker",
-  "description": "Track your job/iternship applications and automatically sync them to Google Sheets!",
+  "description": "Track your job/internship applications and automatically sync them to Google Sheets!",
   "version": "4",
   "manifest_version": 3,
   "action": {
