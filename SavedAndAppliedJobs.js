@@ -3,13 +3,11 @@ document.addEventListener("DOMContentLoaded", () => {
           tabBtn.addEventListener('click', () => switchToTab(tabBtn.getAttribute('data-tab')));
       });
 
-      // Clear All button — only clears jobs in whichever tab is currently active
       const clearBtn = document.getElementById("clearBtn");
       if (clearBtn) {
           clearBtn.addEventListener("click", clearActiveTabJobs);
       }
 
-      // Search bar — filters the currently loaded jobs by title/company as you type
       const searchInput = document.getElementById("jobSearchInput");
       if (searchInput) {
           searchInput.addEventListener("input", () => {
@@ -19,8 +17,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-    // All jobs currently loaded from the sheet (unfiltered) — cached so search
-    // filtering is instant and doesn't require re-fetching from the API.
     let allJobsCache = [];
     let currentSearchQuery = '';
 
@@ -42,12 +38,8 @@ document.addEventListener("DOMContentLoaded", () => {
         clearBtn.textContent = `${labels[getActiveTab()] || 'Clear'}`;
     }
 
-    // Column layout written by popup.js's addHeaderRow — keep these in sync
     const SHEET_COLUMNS = ['title', 'company', 'status', 'type', 'date', 'location', 'salary', 'deadline', 'link', 'notes'];
 
-    // Which tab a job's status belongs in. 'saved' and 'applied' are exact
-    // matches; anything else (Interviewing, Offer, Rejected, or any future
-    // status) falls into 'progress'.
     function tabForStatus(status) {
         const s = (status || '').toLowerCase();
         if (s === 'saved') return 'saved';
@@ -55,13 +47,12 @@ document.addEventListener("DOMContentLoaded", () => {
         return 'progress';
     }
 
-    // Pull all rows from the connected sheet and render them into the three lists
     function loadJobsFromSheet() {
         chrome.storage.sync.get(['spreadsheetId'], (result) => {
             if (!result.spreadsheetId) return;
 
-            chrome.identity.getAuthToken({ interactive: false }, (token) => {
-                if (chrome.runtime.lastError || !token) return;
+            requestAuthToken(false, (token, error) => {
+                if (error || !token) return;
 
                 const range = 'Sheet1!A2:J';
                 const url = `https://sheets.googleapis.com/v4/spreadsheets/${result.spreadsheetId}/values/${range}`;
@@ -72,11 +63,11 @@ document.addEventListener("DOMContentLoaded", () => {
                     const rows = data.values || [];
                     const jobs = rows
                         .map((row, i) => {
-                            const job = { sheetRow: i + 2 }; // +2: skip header row, 1-indexed sheet rows
+                            const job = { sheetRow: i + 2 };
                             SHEET_COLUMNS.forEach((key, colIndex) => { job[key] = row[colIndex] || ''; });
                             return job;
                         })
-                        .filter(job => job.title); // skip blank rows
+                        .filter(job => job.title);
 
                     allJobsCache = jobs;
                     applyFilterAndRender();
@@ -86,8 +77,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Split the cached jobs into the three tab buckets, applying the current
-    // search query (matched against title and company) if one is set.
     function applyFilterAndRender() {
         const query = currentSearchQuery.trim().toLowerCase();
         const filtered = !query ? allJobsCache : allJobsCache.filter(job =>
@@ -98,6 +87,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const applied = filtered.filter(j => tabForStatus(j.status) === 'applied');
         const saved = filtered.filter(j => tabForStatus(j.status) === 'saved');
         const inProgress = filtered.filter(j => tabForStatus(j.status) === 'progress');
+
+        updateStatsCounts(allJobsCache);
 
         const noMatchSub = 'No jobs match your search.';
         renderJobList('appliedJobs', applied, 'applied',
@@ -111,7 +102,6 @@ document.addEventListener("DOMContentLoaded", () => {
             query ? noMatchSub : 'Interviewing, offer, and rejected jobs will show up here.');
     }
 
-    // Reset all three tabs back to their empty-state placeholders (e.g. after disconnect)
     function resetJobLists() {
         allJobsCache = [];
         currentSearchQuery = '';
@@ -120,11 +110,34 @@ document.addEventListener("DOMContentLoaded", () => {
         renderJobList('appliedJobs', [], 'applied', 'No applied jobs yet', 'When you apply to a job on Handshake, click "Yes" to track it here.');
         renderJobList('savedJobs', [], 'saved', 'No saved jobs yet', 'Save jobs on Handshake to track them here.');
         renderJobList('progressJobs', [], 'progress', 'No jobs in progress', 'Interviewing, offer, and rejected jobs will show up here.');
+        updateStatsCounts([]);
     }
 
-    // Render a list of {title, company, sheetRow} jobs into the given container,
-    // or fall back to an empty-state message if there are none. listType is
-    // 'applied' or 'saved' — saved cards additionally get a "Move to Applied" button.
+    function updateStatsCounts(jobs) {
+        const counts = {
+            applied: jobs.filter(j => tabForStatus(j.status) === 'applied').length,
+            saved: jobs.filter(j => tabForStatus(j.status) === 'saved').length,
+            progress: jobs.filter(j => tabForStatus(j.status) === 'progress').length
+        };
+
+        [
+            ['statAppliedCount', 'statCardApplied', counts.applied],
+            ['statSavedCount', 'statCardSaved', counts.saved],
+            ['statProgressCount', 'statCardProgress', counts.progress]
+        ].forEach(([numId, cardId, value]) => {
+            const numEl = document.getElementById(numId);
+            const cardEl = document.getElementById(cardId);
+            if (!numEl) return;
+            const changed = numEl.textContent !== String(value);
+            numEl.textContent = value;
+            if (changed && cardEl) {
+                cardEl.classList.remove('bump');
+                void cardEl.offsetWidth;
+                cardEl.classList.add('bump');
+            }
+        });
+    }
+
     function renderJobList(containerId, jobs, listType, emptyTitle, emptySubtext) {
         const container = document.getElementById(containerId);
         if (!container) return;
@@ -155,7 +168,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         container.innerHTML = `<div class="jobs-list">${listHtml}</div>`;
 
-        // Wire up delete buttons for this render
         container.querySelectorAll('.job-delete-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -169,7 +181,6 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         });
 
-        // Wire up edit buttons for this render
         container.querySelectorAll('.job-edit-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -191,8 +202,6 @@ document.addEventListener("DOMContentLoaded", () => {
         return escapeHtml(str).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     }
 
-    // Build the inline edit form's markup for a given job, reusing the same
-    // form classes/styling as the manual-entry form for visual consistency.
     function buildEditForm(job) {
         const statusOptions = ['Applied', 'Saved', 'Interviewing', 'Offer', 'Rejected'];
         const typeOptions = ['Internship', 'Full-Time', 'Part-Time'];
@@ -233,21 +242,18 @@ document.addEventListener("DOMContentLoaded", () => {
         `;
     }
 
-    // Show/hide the inline edit form for a given sheet row. Only one edit
-    // form is open at a time, across all tabs.
     function toggleEditForm(row) {
         const editContainer = document.getElementById(`edit-container-${row}`);
         if (!editContainer) return;
 
         const wasOpen = editContainer.classList.contains('open');
 
-        // Close any other open edit form first
         document.querySelectorAll('.job-edit-container.open').forEach(el => {
             el.classList.remove('open');
             el.innerHTML = '';
         });
 
-        if (wasOpen) return; // it was open — the loop above already closed it
+        if (wasOpen) return;
 
         const job = allJobsCache.find(j => j.sheetRow === row);
         if (!job) return;
@@ -291,8 +297,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
         setFeedback(feedbackEl, 'Saving…', '');
 
-        // Date Added (column E) is preserved from the original row — editing
-        // a job shouldn't change when it was originally added.
+        if (status === 'Applied' && originalJob.status !== 'Applied' && typeof triggerConfetti === 'function') {
+            triggerConfetti();
+        }
+
         const updatedRow = [title, company, status, type, originalJob.date, location, salary, deadline, link, notes];
         updateJobRow(row, updatedRow, feedbackEl);
     }
@@ -302,9 +310,9 @@ document.addEventListener("DOMContentLoaded", () => {
         chrome.storage.sync.get(['spreadsheetId'], (result) => {
             if (!result.spreadsheetId) return;
 
-            chrome.identity.getAuthToken({ interactive: true }, (token) => {
-                if (chrome.runtime.lastError || !token) {
-                    console.error('Auth error:', chrome.runtime.lastError);
+            requestAuthToken(true, (token, error) => {
+                if (error || !token) {
+                    console.error('Auth error:', error);
                     if (feedbackEl) setFeedback(feedbackEl, 'Authentication failed. Try reconnecting.', 'error');
                     return;
                 }
@@ -333,14 +341,13 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Delete a specific row from the spreadsheet, then reload the list
     function deleteJobRow(sheetRow) {
         chrome.storage.sync.get(['spreadsheetId'], (result) => {
             if (!result.spreadsheetId) return;
 
-            chrome.identity.getAuthToken({ interactive: true }, (token) => {
-                if (chrome.runtime.lastError || !token) {
-                    console.error('Auth error:', chrome.runtime.lastError);
+            requestAuthToken(true, (token, error) => {
+                if (error || !token) {
+                    console.error('Auth error:', error);
                     return;
                 }
 
@@ -409,23 +416,20 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Which tab ('applied' or 'saved') is currently showing
     function getActiveTab() {
         const activeTabBtn = document.querySelector('.tab.active');
         return activeTabBtn ? activeTabBtn.getAttribute('data-tab') : 'applied';
     }
 
-    // Clear every job in whichever tab is currently active — deletes those rows
-    // from the spreadsheet, leaving the other section untouched
     function clearActiveTabJobs() {
-        const activeTab = getActiveTab(); // 'applied' or 'saved'
+        const activeTab = getActiveTab();
 
         chrome.storage.sync.get(['spreadsheetId'], (result) => {
             if (!result.spreadsheetId) return;
 
-            chrome.identity.getAuthToken({ interactive: true }, (token) => {
-                if (chrome.runtime.lastError || !token) {
-                    console.error('Auth error:', chrome.runtime.lastError);
+            requestAuthToken(true, (token, error) => {
+                if (error || !token) {
+                    console.error('Auth error:', error);
                     return;
                 }
 

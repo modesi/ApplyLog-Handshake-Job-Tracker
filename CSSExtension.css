@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&display=swap');
 
 :root {
   --ink: #2D3748;
@@ -109,7 +109,7 @@ body {
 }
 
 .connect-banner-sub {
-  font-family: 'DM Mono', monospace;
+  font-family: 'DM Sans', sans-serif;
   font-size: 10px;
   color: var(--light_ink);
 }
@@ -125,14 +125,12 @@ body {
   font-size: 12px;
   cursor: pointer;
   white-space: nowrap;
-  box-shadow: 0 3px 10px rgba(226,24,51,0.4);
   transition: transform 0.15s, box-shadow 0.15s;
   flex-shrink: 0;
 }
 
 .btn-connect:hover {
   transform: translateY(-1px);
-  box-shadow: 0 5px 14px rgba(226,24,51,0.5);
 }
 
 .btn-connect:disabled {
@@ -143,8 +141,8 @@ body {
 }
 
 .connected-banner {
-  background: #f0fdf4;
-  border: 1px solid #bbf7d0;
+  background: var(--border);
+  border: 1px solid var(--border);
   border-radius: 10px;
   padding: 9px 14px;
   display: flex;
@@ -179,7 +177,7 @@ body {
   gap: 7px;
   width: 100%;
   padding: 9px;
-  background: #fff8db;
+  background: var(--border);
   border: 1.5px solid var(--border);
   border-radius: 8px;
   font-family: 'DM Sans', sans-serif;
@@ -195,7 +193,6 @@ body {
   border-color: var(--success);
   color: var(--border);
   transform: translateY(-1px);
-  box-shadow: 0 3px 10px rgba(226,24,51,0.3);
 }
 
 .btn-sheets-icon { font-size: 13px; }
@@ -218,17 +215,29 @@ body {
   font-family: 'DM Sans', sans-serif;
   font-weight: 800;
   font-size: 22px;
-  color: var(--ink);
+  color: var(--paper);
   line-height: 1;
   margin-bottom: 3px;
+  transition: transform 0.2s ease;
 }
 
 .stat-label {
-  font-family: 'DM Mono', monospace;
+  font-family: 'DM Sans', sans-serif;
   font-size: 9px;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: var(--ink);
+  color: var(--paper);
+  opacity: 0.85;
+}
+
+.stat-card.bump .stat-num {
+  animation: statBump 0.35s ease;
+}
+
+@keyframes statBump {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.25); }
+  100% { transform: scale(1); }
 }
 
 .search-bar {
@@ -237,7 +246,7 @@ body {
 
 .search-bar .form-input {
   padding-left: 28px;
-  background: #fff;
+  background: var(--border);
 }
 
 .search-bar::before {
@@ -277,7 +286,6 @@ body {
 .tab.active {
   background: var(--card);
   color: var(--paper);
-  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
   font-weight: 600;
 }
 
@@ -313,7 +321,7 @@ body {
 }
 
 .empty-state small {
-  font-family: 'DM Mono', monospace;
+  font-family: 'DM Sans', sans-serif;
   font-size: 10px;
   color: var(--ink);
   line-height: 1.5;
@@ -365,7 +373,7 @@ body {
 }
 
 .job-date {
-  font-family: 'DM Mono', monospace;
+  font-family: 'DM Sans', sans-serif;
   font-size: 9px;
   color: var(--ink);
   white-space: nowrap;
@@ -393,7 +401,7 @@ body {
 
 .job-edit-btn:hover {
   color: var(--success);
-  background: #f0fdf4;
+  background: var(--border);
 }
 
 .job-edit-container {
@@ -437,7 +445,7 @@ body {
 
 .job-delete-btn:hover {
   color: var(--warning);
-  background: #fdeaec;
+  background: var(--border);
 }
 
 .job-company {
@@ -454,28 +462,27 @@ body {
 }
 
 .job-location, .job-salary {
-  font-family: 'DM Mono', monospace;
+  font-family: 'DM Sans', sans-serif;
   font-size: 10px;
   color: var(--ink);
 }
 
 .job-status-chip {
   display: inline-block;
-  font-family: 'DM Mono', monospace;
+  font-family: 'DM Sans', sans-serif;
   font-size: 9px;
   padding: 2px 7px;
   border-radius: 20px;
-  background: #fdeaec;
+  background: var(--border);
   color: var(--warning);
-  border: 1px solid #f3b6bd;
+  border: 1px solid var(--border);
   font-weight: 500;
   margin-top: 5px;
 }
 
 .job-status-chip.saved {
-  background: #fff8db;
+  background: var(--border);
   color: var(--ink);
-  border-color: var(--gold);
 }
 
 .manual-entry {
@@ -500,6 +507,86 @@ body {
 .manual-entry-toggle:hover {
   border-color: var(--success);
   color: var(--ink);
+}
+
+/* Add Job is the primary action of the popup — give it more visual weight */
+.manual-entry-toggle.btn-add-job {
+  padding: 12px;
+  font-size: 13.5px;
+  letter-spacing: 0.01em;
+  box-shadow: 0 3px 10px rgba(74,111,165,0.35);
+}
+
+.manual-entry-toggle.btn-add-job:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 5px 14px rgba(74,111,165,0.45);
+}
+
+/* Import from an old spreadsheet is rare — a small icon button living next to
+   the connection status dot, with a themed tooltip instead of a text label */
+.manual-entry-compact {
+  border-top: none;
+  padding-top: 2px;
+}
+
+.status-indicator {
+  position: relative;
+}
+
+.import-icon-btn {
+  position: relative;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  margin-left: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px dashed var(--card);
+  border-radius: 50%;
+  font-size: 11px;
+  line-height: 1;
+  color: var(--light_ink);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.import-icon-btn:hover {
+  border-style: solid;
+  border-color: var(--ink);
+  color: var(--ink);
+  background: var(--border);
+}
+
+.import-tooltip {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  width: max-content;
+  max-width: 150px;
+  background: var(--ink);
+  color: var(--border);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1.4;
+  padding: 6px 9px;
+  border-radius: 6px;
+  text-align: left;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-3px);
+  transition: opacity 0.15s, transform 0.15s, visibility 0.15s;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.import-icon-btn:hover .import-tooltip,
+.import-icon-btn:focus-visible .import-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
 }
 
 .manual-entry-form {
@@ -531,7 +618,7 @@ body {
 }
 
 .field-label {
-  font-family: 'DM Mono', monospace;
+  font-family: 'DM Sans', sans-serif;
   font-size: 9px;
   color: var(--ink);
   text-transform: uppercase;
@@ -569,7 +656,7 @@ textarea.form-input {
 }
 
 .manual-feedback {
-  font-family: 'DM Mono', monospace;
+  font-family: 'DM Sans', sans-serif;
   font-size: 10px;
   text-align: center;
   min-height: 12px;
@@ -619,7 +706,7 @@ textarea.form-input {
 }
 
 .import-map-target {
-  font-family: 'DM Mono', monospace;
+  font-family: 'DM Sans', sans-serif;
   font-size: 9px;
   padding: 2px 7px;
   border-radius: 20px;
@@ -636,11 +723,10 @@ textarea.form-input {
 .import-map-target.new-column {
   background: #fff8db;
   color: var(--ink);
-  border: 1px solid var(--gold);
 }
 
 .import-summary {
-  font-family: 'DM Mono', monospace;
+  font-family: 'DM Sans', sans-serif;
   font-size: 9.5px;
   color: var(--ink);
   line-height: 1.5;

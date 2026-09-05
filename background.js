@@ -2,12 +2,15 @@ chrome.runtime.onInstalled.addListener(() => {
   console.log('Handshake Job Tracker Extension Installed');
 });
 
-// Optional: Handle events or token refresh in the background (not needed for OAuth directly)
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.type === 'refreshToken') {
-    chrome.identity.getAuthToken({ interactive: true }, (token) => {
-      sendResponse({ token });
+  if (message && message.type === 'getAuthToken') {
+    chrome.identity.getAuthToken({ interactive: !!message.interactive }, (token) => {
+      if (chrome.runtime.lastError || !token) {
+        sendResponse({ token: null, error: chrome.runtime.lastError ? chrome.runtime.lastError.message : 'No token returned' });
+        return;
+      }
+      sendResponse({ token, error: null });
     });
-    return true; // Indicates the response is async
+    return true;
   }
 });

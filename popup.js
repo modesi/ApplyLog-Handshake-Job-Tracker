@@ -1,10 +1,22 @@
-// Column layout for the sheet — keep in sync with SHEET_COLUMNS in SavedAndAppliedJobs.js
 const SHEET_HEADERS = ['Job Title', 'Company', 'Status', 'Type', 'Date Added', 'Location', 'Salary', 'Deadline', 'Link', 'Notes'];
 const STATUS_OPTIONS = ['Saved', 'Applied', 'Interviewing', 'Offer', 'Rejected'];
 const TYPE_OPTIONS = ['Internship', 'Full-Time', 'Part-Time'];
 
-// Bump this whenever styleSpreadsheet's visuals change — any spreadsheet stored
-// with an older version gets automatically re-styled next time the popup opens.
+
+function requestAuthToken(interactive, callback) {
+    chrome.runtime.sendMessage({ type: 'getAuthToken', interactive: !!interactive }, (response) => {
+        if (chrome.runtime.lastError) {
+            callback(null, chrome.runtime.lastError.message);
+            return;
+        }
+        if (!response || response.error) {
+            callback(null, response ? response.error : 'No response from background script');
+            return;
+        }
+        callback(response.token, null);
+    });
+}
+
 const SPREADSHEET_STYLE_VERSION = 2;
 
 // Style (or re-style) a spreadsheet if it isn't already on the current look.
@@ -27,7 +39,7 @@ function ensureSpreadsheetStyled(spreadsheetId, oauthToken, onDone) {
             return;
         }
 
-        // No cached gid (e.g. an older/reused spreadsheet) — look up the first sheet's gid
+        // No cached gid (e.g. an older/reused spreadsheet) - look up the first sheet's gid
         fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}?fields=sheets.properties`, {
             headers: { 'Authorization': `Bearer ${oauthToken}` }
         })
@@ -44,8 +56,69 @@ function ensureSpreadsheetStyled(spreadsheetId, oauthToken, onDone) {
     });
 }
 
+function triggerConfetti() {
+    const existing = document.getElementById('confettiCanvas');
+    if (existing) existing.remove();
+
+    const canvas = document.createElement('canvas');
+    canvas.id = 'confettiCanvas';
+    canvas.style.position = 'fixed';
+    canvas.style.top = '0';
+    canvas.style.left = '0';
+    canvas.style.pointerEvents = 'none';
+    canvas.style.zIndex = '2000';
+    canvas.width = document.documentElement.clientWidth || window.innerWidth;
+    canvas.height = document.documentElement.clientHeight || window.innerHeight;
+    document.body.appendChild(canvas);
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) { canvas.remove(); return; }
+
+    const colors = ['#e21833', '#4A6FA5', '#16a34a', '#ad7231', '#2D3748'];
+    const particleCount = 90;
+    const particles = Array.from({ length: particleCount }, () => ({
+        x: canvas.width / 2 + (Math.random() - 0.5) * 50,
+        y: canvas.height * 0.35,
+        vx: (Math.random() - 0.5) * 9,
+        vy: Math.random() * -7 - 3,
+        size: Math.random() * 5 + 3,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        rotation: Math.random() * Math.PI * 2,
+        vr: (Math.random() - 0.5) * 0.35,
+        gravity: 0.28 + Math.random() * 0.08
+    }));
+
+    const duration = 900;
+    const start = performance.now();
+
+    function frame(now) {
+        const elapsed = now - start;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        particles.forEach((p) => {
+            p.x += p.vx;
+            p.y += p.vy;
+            p.vy += p.gravity;
+            p.rotation += p.vr;
+
+            ctx.save();
+            ctx.translate(p.x, p.y);
+            ctx.rotate(p.rotation);
+            ctx.fillStyle = p.color;
+            ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
+            ctx.restore();
+        });
+
+        if (elapsed < duration) {
+            requestAnimationFrame(frame);
+        } else {
+            canvas.remove();
+        }
+    }
+    requestAnimationFrame(frame);
+}
+
 document.addEventListener("DOMContentLoaded", function() {
-    // Ensure the connect button exists
     const connectBtn = document.getElementById("connectBtn");
     if (connectBtn) {
         connectBtn.addEventListener("click", () => {
@@ -56,10 +129,8 @@ document.addEventListener("DOMContentLoaded", function() {
         console.error('Connect button not found');
     }
 
-    // Check whether we're already connected (e.g. popup was reopened)
     checkConnectionStatus();
 
-    // Manual entry toggle + form
     const manualToggle = document.getElementById("manualEntryToggle");
     const manualForm = document.getElementById("manualEntryForm");
     if (manualToggle && manualForm) {
@@ -70,8 +141,6 @@ document.addEventListener("DOMContentLoaded", function() {
         manualForm.addEventListener("submit", addManualEntry);
     }
 
-    // Disconnect button — clears the stored sheet and revokes the token so the
-    // user can reconnect with a different Google account if they want to
     const disconnectBtn = document.getElementById("disconnectBtn");
     if (disconnectBtn) {
         disconnectBtn.addEventListener("click", () => {
@@ -85,10 +154,6 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 });
 
-// Themed replacement for window.confirm() — shows the modal defined in
-// index.html (#confirmModalOverlay) styled to match the extension, instead
-// of the browser's unstylable native confirm dialog. Falls back to a native
-// confirm if the modal markup is somehow missing.
 function showConfirmModal({ title = 'Are you sure?', message = '', confirmLabel = 'Confirm', showCancel = true, onConfirm }) {
     const overlay = document.getElementById('confirmModalOverlay');
     const titleEl = document.getElementById('confirmModalTitle');
@@ -97,7 +162,6 @@ function showConfirmModal({ title = 'Are you sure?', message = '', confirmLabel 
     const cancelBtn = document.getElementById('confirmModalCancel');
 
     if (!overlay || !titleEl || !messageEl || !confirmBtn || !cancelBtn) {
-        // Fallback to native dialogs if the modal markup is somehow missing
         if (!showCancel) { alert(message || title); if (onConfirm) onConfirm(); return; }
         if (confirm(message || title) && onConfirm) onConfirm();
         return;
@@ -128,7 +192,6 @@ function showConfirmModal({ title = 'Are you sure?', message = '', confirmLabel 
     document.addEventListener('keydown', handleKeydown);
 }
 
-// Themed replacement for window.alert() — single-button variant of the confirm modal
 function showInfoModal(title, message, okLabel = 'OK') {
     showConfirmModal({ title, message, confirmLabel: okLabel, showCancel: false, onConfirm: () => {} });
 }
@@ -138,8 +201,8 @@ function checkConnectionStatus() {
     chrome.storage.sync.get(['spreadsheetId'], (result) => {
         if (result.spreadsheetId) {
             // Try to get a token silently (no popup) to confirm we're still authorized
-            chrome.identity.getAuthToken({ interactive: false }, (token) => {
-                if (chrome.runtime.lastError || !token) {
+            requestAuthToken(false, (token, error) => {
+                if (error || !token) {
                     updateStatus('Not connected');
                 } else {
                     updateStatus('Connected');
@@ -150,10 +213,10 @@ function checkConnectionStatus() {
             return;
         }
 
-        // No cached ID — if we're still silently authorized, check Drive for a
+        // No cached ID - if we're still silently authorized, check Drive for a
         // spreadsheet this app created previously (e.g. before a reinstall)
-        chrome.identity.getAuthToken({ interactive: false }, (token) => {
-            if (chrome.runtime.lastError || !token) {
+        requestAuthToken(false, (token, error) => {
+            if (error || !token) {
                 updateStatus('Not connected');
                 return;
             }
@@ -162,7 +225,6 @@ function checkConnectionStatus() {
     });
 }
 
-// Reveal the "Open Google Sheets" link once we know the spreadsheet ID
 function showSpreadsheetLink(spreadsheetId) {
     const spreadsheetLink = document.getElementById('spreadsheetLink');
     const openSpreadsheet = document.getElementById('openSpreadsheet');
@@ -172,7 +234,6 @@ function showSpreadsheetLink(spreadsheetId) {
     }
 }
 
-// Grab form values, validate, and append a row to the connected sheet
 function addManualEntry(event) {
     event.preventDefault();
 
@@ -197,9 +258,9 @@ function addManualEntry(event) {
             return;
         }
 
-        chrome.identity.getAuthToken({ interactive: true }, (token) => {
-            if (chrome.runtime.lastError || !token) {
-                console.error('Auth error:', chrome.runtime.lastError);
+        requestAuthToken(true, (token, error) => {
+            if (error || !token) {
+                console.error('Auth error:', error);
                 setFeedback(document.getElementById('manualFeedback'), 'Authentication failed. Try reconnecting.', 'error');
                 return;
             }
@@ -213,11 +274,6 @@ function addManualEntry(event) {
     });
 }
 
-// Force a just-appended row to plain white background + black text. Needed
-// because Sheets' values.append with INSERT_ROWS copies formatting from the
-// row directly above the new one — for the first entry, that's the black
-// header row. `updatedRange` is the A1 range returned by the append call
-// (e.g. "Sheet1!A2:J2"); `columnCount` is how many columns wide to reset.
 function resetAppendedRowFormatting(spreadsheetId, gid, token, updatedRange, columnCount, onDone) {
     if (gid === null || gid === undefined) { onDone(); return; }
 
@@ -271,14 +327,14 @@ function appendRowToSheet(spreadsheetId, gid, token, rowValues) {
         return response.json();
     })
     .then((data) => {
-        // values.append with INSERT_ROWS copies formatting from the row above the
-        // new one — for the first job that's the black header row. Force the
-        // newly written row back to a plain white background + black text.
         const updatedRange = data.updates && data.updates.updatedRange;
         const finish = () => {
             setFeedback(document.getElementById('manualFeedback'), '✅ Added to spreadsheet!', 'success');
             document.getElementById('manualEntryForm').reset();
             loadJobsFromSheet();
+            if (rowValues[2] === 'Applied' && typeof triggerConfetti === 'function') {
+                triggerConfetti();
+            }
         };
         if (updatedRange && gid !== undefined && gid !== null) {
             resetAppendedRowFormatting(spreadsheetId, gid, token, updatedRange, SHEET_HEADERS.length, finish);
@@ -292,27 +348,30 @@ function appendRowToSheet(spreadsheetId, gid, token, rowValues) {
     });
 }
 
-// Disconnect the current Google account: revoke the OAuth token so it's no longer
-// valid, remove it from Chrome's token cache, and forget the stored spreadsheet.
-// This lets the person reconnect with a different Google account afterward.
 function disconnectAccount() {
-    chrome.identity.getAuthToken({ interactive: false }, (token) => {
-        if (chrome.runtime.lastError || !token) {
-            // No token to revoke — just clear local state
-            finishDisconnect();
+    requestAuthToken(false, (token, error) => {
+        if (error || !token) {
+            purgeAllCachedTokens(finishDisconnect);
             return;
         }
 
-        // Revoke server-side so Google forgets this app's grant for the account
         fetch(`https://oauth2.googleapis.com/revoke?token=${token}`, { method: 'POST' })
         .catch(error => console.error('Error revoking token:', error))
         .finally(() => {
-            // Remove it from Chrome's local cache regardless of whether revoke succeeded
+
             chrome.identity.removeCachedAuthToken({ token }, () => {
-                finishDisconnect();
+                purgeAllCachedTokens(finishDisconnect);
             });
         });
     });
+}
+
+function purgeAllCachedTokens(onDone) {
+    if (chrome.identity.clearAllCachedAuthTokens) {
+        chrome.identity.clearAllCachedAuthTokens(() => onDone());
+    } else {
+        onDone();
+    }
 }
 
 // Clear stored spreadsheet + reset the UI back to "Not connected"
@@ -325,48 +384,39 @@ function finishDisconnect() {
     });
 }
 
-// Generic feedback helper (used by both manual entry and link-existing forms)
 function setFeedback(el, message, type) {
     if (!el) return;
     el.textContent = message;
     el.className = 'manual-feedback' + (type ? ` ${type}` : '');
 }
 
-// Authenticate the user using Chrome Identity API
+// Authenticate the user using Chrome Identity API (via the background
 function authenticateUser() {
-    chrome.identity.getAuthToken({ interactive: true }, (token) => {
-        if (chrome.runtime.lastError) {
-            // Improved logging to show the actual error message
-            console.error('OAuth authentication failed:', chrome.runtime.lastError);
+    requestAuthToken(true, (token, error) => {
+        if (error || !token) {
+            console.error('OAuth authentication failed:', error);
             updateStatus('Connection failed');
             return;
         }
 
-        // If token is received, proceed to check if the user has an existing sheet
         console.log('Token received:', token);
 
         // Check if the user already has a spreadsheet
         chrome.storage.sync.get(['spreadsheetId'], (result) => {
             if (result.spreadsheetId) {
-                // If a spreadsheet ID exists, use it
                 console.log('Existing spreadsheet found:', result.spreadsheetId);
                 updateStatus('Connected');
                 showSpreadsheetLink(result.spreadsheetId);
                 makeApiRequest(result.spreadsheetId, token);
             } else {
-                // No cached ID — check Drive for a spreadsheet this app already created
-                // for this user before falling back to creating a brand new one
                 findExistingSpreadsheet(token);
             }
         });
     });
 }
 
-// Name used both when creating a new spreadsheet and when searching Drive for an existing one
 const APPLYLOG_SHEET_NAME = 'ApplyLog - Job Applications';
 
-// Search the user's Drive (scoped to files this app created, via drive.file) for a
-// spreadsheet we made previously — e.g. after a reinstall wiped local storage.
 function findExistingSpreadsheet(oauthToken) {
     const query = encodeURIComponent(
         `name='${APPLYLOG_SHEET_NAME}' and mimeType='application/vnd.google-apps.spreadsheet' and trashed=false`
@@ -386,28 +436,24 @@ function findExistingSpreadsheet(oauthToken) {
     })
     .then(data => {
         if (data.files && data.files.length > 0) {
-            // Found a previously created sheet — reuse the most recent one
             const existingId = data.files[0].id;
             console.log('Found existing spreadsheet:', existingId);
             chrome.storage.sync.set({ spreadsheetId: existingId }, () => {
-                chrome.storage.sync.remove(['sheetGid', 'styleVersion']); // stale/old — force a fresh style pass
+                chrome.storage.sync.remove(['sheetGid', 'styleVersion']);
                 updateStatus('Connected');
                 showSpreadsheetLink(existingId);
                 ensureSpreadsheetStyled(existingId, oauthToken, () => {});
             });
         } else {
-            // Nothing found — this is a genuinely new user
             createNewSpreadsheet(oauthToken);
         }
     })
     .catch(error => {
         console.error('Error searching for existing spreadsheet:', error);
-        // Fall back to creating one so the user isn't stuck
         createNewSpreadsheet(oauthToken);
     });
 }
 
-// Create a brand-new spreadsheet for this user via the Sheets API (no Drive scope needed)
 function createNewSpreadsheet(oauthToken) {
     const url = 'https://sheets.googleapis.com/v4/spreadsheets';
 
@@ -475,21 +521,13 @@ function addHeaderRow(spreadsheetId, oauthToken, onDone) {
     .then(() => onDone())
     .catch(error => {
         console.error('Error writing header row:', error);
-        // Still proceed — the sheet exists even if the header write failed
         onDone();
     });
 }
 
-// Decorate a sheet: frozen header row, bold header styling, sized columns,
-// colored Status text (no cell fill), and built-in dropdowns for Status/Type.
-// Only the header row gets a background color — data rows stay on the sheet's
-// normal white background.
 function styleSpreadsheet(spreadsheetId, gid, oauthToken, onDone) {
     if (gid === null || gid === undefined) { onDone(); return; }
 
-    // First, look up any conditional-format rules or banded (zebra-striped) ranges
-    // already on this sheet so we can remove them before reapplying — otherwise
-    // re-styling an already-styled sheet would stack duplicate rules.
     const metaUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}?fields=sheets(properties.sheetId,conditionalFormats,bandedRanges.bandedRangeId)`;
 
     fetch(metaUrl, { headers: { 'Authorization': `Bearer ${oauthToken}` } })
@@ -499,7 +537,6 @@ function styleSpreadsheet(spreadsheetId, gid, oauthToken, onDone) {
         const ruleCount = sheet && sheet.conditionalFormats ? sheet.conditionalFormats.length : 0;
         const bandedRangeIds = sheet && sheet.bandedRanges ? sheet.bandedRanges.map(b => b.bandedRangeId) : [];
 
-        // Deleting index 0 repeatedly removes every rule, since each deletion shifts the rest down
         const cleanupRequests = [
             ...Array.from({ length: ruleCount }, () => ({ deleteConditionalFormatRule: { sheetId: gid, index: 0 } })),
             ...bandedRangeIds.map(bandedRangeId => ({ deleteBanding: { bandedRangeId } }))
@@ -522,9 +559,6 @@ function applyStyleRequests(spreadsheetId, gid, oauthToken, cleanupRequests, onD
 
     const columnWidths = [190, 150, 110, 110, 100, 130, 100, 105, 190, 220];
 
-    // Built from UMD's official palette (brand.umd.edu/colors): Maryland Red,
-    // Maryland Gold, Black, Dark Gray, and Bronze Testudo. Only affects the
-    // Status column's text — no cell background fill.
     const statusColors = [
         { value: 'Saved',        text: 'ad7231' }, // Bronze Testudo
         { value: 'Applied',      text: '454545' }, // Dark Gray
@@ -535,7 +569,6 @@ function applyStyleRequests(spreadsheetId, gid, oauthToken, cleanupRequests, onD
 
     const requests = [
         ...cleanupRequests,
-        // Freeze the header row + give the tab an accent color
         {
             updateSheetProperties: {
                 properties: {
@@ -546,7 +579,7 @@ function applyStyleRequests(spreadsheetId, gid, oauthToken, cleanupRequests, onD
                 fields: 'gridProperties.frozenRowCount,tabColor'
             }
         },
-        // Header row only: black background, bold white centered text
+
         {
             repeatCell: {
                 range: { sheetId: gid, startRowIndex: 0, endRowIndex: 1, startColumnIndex: 0, endColumnIndex: SHEET_HEADERS.length },
@@ -561,7 +594,7 @@ function applyStyleRequests(spreadsheetId, gid, oauthToken, cleanupRequests, onD
                 fields: 'userEnteredFormat(backgroundColor,textFormat,verticalAlignment,horizontalAlignment)'
             }
         },
-        // Slightly taller header row
+
         {
             updateDimensionProperties: {
                 range: { sheetId: gid, dimension: 'ROWS', startIndex: 0, endIndex: 1 },
@@ -569,7 +602,6 @@ function applyStyleRequests(spreadsheetId, gid, oauthToken, cleanupRequests, onD
                 fields: 'pixelSize'
             }
         },
-        // Column widths
         ...columnWidths.map((width, i) => ({
             updateDimensionProperties: {
                 range: { sheetId: gid, dimension: 'COLUMNS', startIndex: i, endIndex: i + 1 },
@@ -577,7 +609,7 @@ function applyStyleRequests(spreadsheetId, gid, oauthToken, cleanupRequests, onD
                 fields: 'pixelSize'
             }
         })),
-        // Data rows: plain white background, explicitly (in case an older style left banding/fills behind)
+
         {
             repeatCell: {
                 range: { sheetId: gid, startRowIndex: 1, endRowIndex: 1000, startColumnIndex: 0, endColumnIndex: SHEET_HEADERS.length },
@@ -585,7 +617,7 @@ function applyStyleRequests(spreadsheetId, gid, oauthToken, cleanupRequests, onD
                 fields: 'userEnteredFormat.backgroundColor'
             }
         },
-        // Center-align Status, Type, Date Added, Deadline columns
+
         {
             repeatCell: {
                 range: { sheetId: gid, startRowIndex: 1, endRowIndex: 1000, startColumnIndex: 2, endColumnIndex: 5 },
@@ -593,6 +625,7 @@ function applyStyleRequests(spreadsheetId, gid, oauthToken, cleanupRequests, onD
                 fields: 'userEnteredFormat(horizontalAlignment,verticalAlignment)'
             }
         },
+
         {
             repeatCell: {
                 range: { sheetId: gid, startRowIndex: 1, endRowIndex: 1000, startColumnIndex: 7, endColumnIndex: 8 },
@@ -600,7 +633,7 @@ function applyStyleRequests(spreadsheetId, gid, oauthToken, cleanupRequests, onD
                 fields: 'userEnteredFormat(horizontalAlignment,verticalAlignment)'
             }
         },
-        // Built-in dropdown for Status
+
         {
             setDataValidation: {
                 range: { sheetId: gid, startRowIndex: 1, endRowIndex: 1000, startColumnIndex: 2, endColumnIndex: 3 },
@@ -611,7 +644,7 @@ function applyStyleRequests(spreadsheetId, gid, oauthToken, cleanupRequests, onD
                 }
             }
         },
-        // Built-in dropdown for Type
+
         {
             setDataValidation: {
                 range: { sheetId: gid, startRowIndex: 1, endRowIndex: 1000, startColumnIndex: 3, endColumnIndex: 4 },
@@ -622,7 +655,7 @@ function applyStyleRequests(spreadsheetId, gid, oauthToken, cleanupRequests, onD
                 }
             }
         },
-        // Color-coded Status text (bold, no background fill) via conditional formatting
+
         ...statusColors.map(({ value, text }) => ({
             addConditionalFormatRule: {
                 rule: {
@@ -635,7 +668,7 @@ function applyStyleRequests(spreadsheetId, gid, oauthToken, cleanupRequests, onD
                 index: 0
             }
         })),
-        // Wrap long text instead of overflowing into neighboring cells
+
         {
             repeatCell: {
                 range: { sheetId: gid, startRowIndex: 1, endRowIndex: 1000, startColumnIndex: 0, endColumnIndex: 1 },
@@ -650,7 +683,7 @@ function applyStyleRequests(spreadsheetId, gid, oauthToken, cleanupRequests, onD
                 fields: 'userEnteredFormat(wrapStrategy,verticalAlignment)'
             }
         },
-        // Thin grid borders for a clean, printable look
+
         {
             updateBorders: {
                 range: { sheetId: gid, startRowIndex: 0, endRowIndex: 1000, startColumnIndex: 0, endColumnIndex: SHEET_HEADERS.length },
@@ -662,7 +695,7 @@ function applyStyleRequests(spreadsheetId, gid, oauthToken, cleanupRequests, onD
                 innerVertical: { style: 'SOLID', width: 1, color: rgb('e6e6e6') }
             }
         },
-        // Built-in filter on the header row so the sheet is easy to sort/filter directly in Sheets
+
         {
             setBasicFilter: {
                 filter: {
@@ -692,7 +725,6 @@ function applyStyleRequests(spreadsheetId, gid, oauthToken, cleanupRequests, onD
     .then(() => onDone())
     .catch(error => {
         console.error('Error styling spreadsheet:', error);
-        // Still proceed — an unstyled sheet is better than a stuck connect flow
         onDone();
     });
 }
