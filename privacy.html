@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy Policy for ApplyLog</title>
+<style>
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    max-width: 780px;
+    margin: 40px auto;
+    padding: 0 20px;
+    line-height: 1.6;
+    color: #1a1a1a;
+  }
+  h1 { font-size: 1.8em; margin-bottom: 0; }
+  h2 { font-size: 1.3em; margin-top: 2em; border-bottom: 1px solid #ddd; padding-bottom: 0.3em; }
+  h3 { font-size: 1.05em; margin-top: 1.5em; }
+  .updated { color: #666; font-size: 0.9em; margin-top: 0.2em; }
+  a { color: #1a56db; }
+  ul { padding-left: 1.4em; }
+  code { background: #f2f2f2; padding: 1px 5px; border-radius: 4px; font-size: 0.92em; }
+</style>
+</head>
+<body>
+
+<h1>Privacy Policy for ApplyLog</h1>
+<p class="updated">Last updated: September 11, 2026</p>
+
+<p>ApplyLog ("the extension," "we," "our") is a Chrome extension that helps you track job and internship applications and sync them to a Google Sheet in your own Google Drive. This policy explains what data ApplyLog accesses, how it's used, and your choices.</p>
+
+<h2>Data We Access</h2>
+
+<h3>Google Account Data (via OAuth)</h3>
+<p>When you click "Connect," ApplyLog uses Google's sign-in (<code>chrome.identity</code>) to request permission for the following scopes:</p>
+<ul>
+  <li><strong>https://www.googleapis.com/auth/spreadsheets</strong> — lets ApplyLog create, read, and write rows in the Google Sheet it uses to store your job/internship entries (titles, companies, statuses, dates, links, notes, etc.).</li>
+  <li><strong>https://www.googleapis.com/auth/drive.file</strong> — a limited Drive scope that only lets ApplyLog see and manage the specific spreadsheet(s) it creates or that you explicitly connect. It cannot browse or access any other files in your Drive.</li>
+</ul>
+<p>We do not request access to your email address, contacts, calendar, or any other Google data beyond what's listed above.</p>
+
+<h3>Job/Internship Data You Enter</h3>
+<p>Information you type into the "Add Job" form (job title, company, status, type, location, salary, deadline, link, notes) is written directly to your connected Google Sheet using the Sheets API. This data is stored in your own Google Drive — ApplyLog does not copy it to any external server we control.</p>
+
+<h3>Data Stored Locally (chrome.storage)</h3>
+<p>ApplyLog uses Chrome's built-in <code>storage.local</code> and <code>storage.sync</code> APIs to remember, on your device (and synced across your own Chrome profile, if enabled):</p>
+<ul>
+  <li>The ID of your connected spreadsheet and its formatting state</li>
+  <li>An in-progress "Add Job" form draft, so you don't lose unsaved entries if the popup closes</li>
+</ul>
+<p>This data stays within your Chrome profile and Google's own sync infrastructure for Chrome — it is not sent to us.</p>
+
+<h3>Import Feature</h3>
+<p>If you use the "Import from an old spreadsheet" feature, ApplyLog reads the spreadsheet you specify (via the Sheets API, using the same OAuth token) to detect and map its columns, then writes the matched rows into your ApplyLog sheet. This only accesses spreadsheets you explicitly provide a link or ID for.</p>
+
+<h2>What We Don't Do</h2>
+<ul>
+  <li>We do not sell, rent, or share your Google user data with third parties.</li>
+  <li>We do not use your data for advertising or for training AI/ML models.</li>
+  <li>We do not operate a backend server that stores your job data — everything lives in your own Google Sheet and your local Chrome storage.</li>
+  <li>We do not access, read, or transmit any Google Drive files other than the spreadsheet(s) ApplyLog creates or that you explicitly connect.</li>
+</ul>
+
+<h2>Data Retention and Deletion</h2>
+<p>Your job/internship data persists for as long as it exists in your Google Sheet — you control it directly and can edit or delete it at any time, either through ApplyLog or directly in Google Sheets.</p>
+<p>Clicking <strong>Disconnect</strong> in the extension revokes ApplyLog's cached OAuth token and clears the locally stored spreadsheet reference. You can also revoke ApplyLog's access at any time from your <a href="https://myaccount.google.com/permissions" target="_blank" rel="noopener">Google Account permissions page</a>. Revoking access does not delete the spreadsheet itself, since it lives in your own Drive.</p>
+
+<h2>Children's Privacy</h2>
+<p>ApplyLog is not directed at children under 13, and we do not knowingly collect data from children under 13.</p>
+
+<h2>Changes to This Policy</h2>
+<p>If we make material changes to this policy, we'll update the "Last updated" date above.</p>
+
+<h2>Contact Us</h2>
+<p>Questions about this policy or how ApplyLog handles your data? Email us at <a href="mailto:applylogsupport@gmail.com">applylogsupport@gmail.com</a>.</p>
+
+</body>
+</html>
