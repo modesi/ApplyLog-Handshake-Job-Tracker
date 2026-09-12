@@ -4,7 +4,7 @@
 
 A Chrome extension that helps you track job and internship applications and automatically syncs them to a Google Sheet. This helps your search stay organized without a separate spreadsheet you have to update by hand.
 
-**[Install ApplyLog from the Chrome Web Store →](https://chromewebstore.google.com/detail/applylog-job-tracker/hllegimodgdopppnmichhfcbnnendoli)**
+**[Install ApplyLog from the Chrome Web Store](https://chromewebstore.google.com/detail/applylog-job-tracker/hllegimodgdopppnmichhfcbnnendoli)**
 
 ## Features
 
