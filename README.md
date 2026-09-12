@@ -1,6 +1,10 @@
 # ApplyLog - Job/Internship Application Tracker
 
+[![Available in the Chrome Web Store](https://img.shields.io/badge/Chrome_Web_Store-Install-4285F4?logo=googlechrome&logoColor=white)](https://chromewebstore.google.com/detail/applylog-job-tracker/hllegimodgdopppnmichhfcbnnendoli)
+
 A Chrome extension that helps you track job and internship applications and automatically syncs them to a Google Sheet. This helps your search stay organized without a separate spreadsheet you have to update by hand.
+
+**[Install ApplyLog from the Chrome Web Store →](https://chromewebstore.google.com/detail/applylog-job-tracker/hllegimodgdopppnmichhfcbnnendoli)**
 
 ## Features
 
@@ -28,6 +32,14 @@ A Chrome extension that helps you track job and internship applications and auto
 | `formDraftPersistence.js` | Auto-saves and restores the "Add Job" form so in-progress entries aren't lost when the popup closes. See below. |
 
 ## Setup
+
+### Option 1: Install from the Chrome Web Store (recommended)
+
+1. Get it here: **[ApplyLog on the Chrome Web Store](https://chromewebstore.google.com/detail/applylog-job-tracker/hllegimodgdopppnmichhfcbnnendoli)**
+2. Click **Add to Chrome**.
+3. Click the ApplyLog icon, hit **Connect**, and sign in with the Google account you want your job tracker synced to.
+
+### Option 2: Run from source (for contributors/development)
 
 1. Clone/download this repository.
 2. In `manifest.json`, the `oauth2.client_id` must correspond to a Google Cloud OAuth client configured for this extension's ID (the `key` field pins the extension ID so the client ID stays valid across reloads). Both the `key` and `client_id` are public identifiers, not secrets - it's safe for them to live in the committed manifest.
