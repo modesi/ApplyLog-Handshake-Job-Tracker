@@ -1,0 +1,329 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700;800&display=swap');
+
+:root {
+  --ink: #2D3748;
+  --paper: #BFD7EA;
+  --warning: #e21833;
+  --light-ink: #454545;
+  --success: #16a34a;
+  --border: #F4F6F8;
+  --card: #4A6FA5;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  line-height: 1.5;
+}
+
+a { color: inherit; }
+
+.wrap {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 0 28px;
+}
+
+/* ---------- Top bar ---------- */
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22px 0;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.brand img {
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
+}
+
+.brand span {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 800;
+  font-size: 22px;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+}
+
+.topbar nav {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  font-size: 14px;
+}
+
+.topbar nav a.text-link {
+  text-decoration: none;
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.topbar nav a.text-link:hover {
+  color: var(--warning);
+}
+
+/* Same shape/weight/hover treatment as .btn-connect in the extension */
+.topbar nav a.store-link {
+  background: var(--warning);
+  color: var(--border);
+  border: none;
+  padding: 9px 16px;
+  border-radius: 7px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: transform 0.15s;
+}
+
+.topbar nav a.store-link:hover {
+  transform: translateY(-1px);
+}
+
+/* ---------- Hero ---------- */
+
+.hero {
+  padding: 40px 0 64px;
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 48px;
+  align-items: center;
+}
+
+.hero h1 {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 40px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  max-width: 480px;
+  color: var(--ink);
+}
+
+.hero p.lede {
+  margin-top: 18px;
+  font-size: 16px;
+  color: var(--light-ink);
+  max-width: 440px;
+  line-height: 1.6;
+}
+
+.hero-ctas {
+  margin-top: 26px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.btn-primary {
+  display: inline-block;
+  background: var(--warning);
+  color: var(--border);
+  padding: 12px 20px;
+  border-radius: 7px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  text-decoration: none;
+  transition: transform 0.15s;
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+}
+
+/* Matches .btn-ghost from the extension */
+.btn-secondary {
+  display: inline-block;
+  background: transparent;
+  color: var(--ink);
+  border: 1.5px solid var(--card);
+  padding: 10.5px 18px;
+  border-radius: 7px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  text-decoration: none;
+  transition: all 0.15s;
+}
+
+.btn-secondary:hover {
+  background: var(--card);
+  color: var(--paper);
+  border-color: var(--card);
+}
+
+/* Same treatment as .job-card: bordered panel on the popup's light background */
+.hero-shot {
+  background: var(--border);
+  border: 1px solid var(--card);
+  border-radius: 12px;
+  padding: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-shot img {
+  width: 100%;
+  max-width: 300px;
+  border-radius: 9px;
+  display: block;
+}
+
+/* ---------- Sections ---------- */
+
+.section {
+  padding: 48px 0;
+  border-top: 1px solid rgba(45, 55, 72, 0.12);
+}
+
+.section h2 {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  max-width: 480px;
+  color: var(--ink);
+}
+
+.section p.section-lede {
+  margin-top: 10px;
+  color: var(--light-ink);
+  max-width: 560px;
+  font-size: 15px;
+}
+
+/* Feature list styled like the popup's job-card: bordered, rounded, paper-colored fill */
+.feature-grid {
+  margin-top: 30px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+.feature {
+  background: var(--border);
+  border: 1px solid var(--card);
+  border-radius: 9px;
+  padding: 16px 18px;
+}
+
+.feature dt {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 700;
+  font-size: 14.5px;
+  color: var(--ink);
+}
+
+.feature dd {
+  margin-top: 6px;
+  color: var(--light-ink);
+  font-size: 13.5px;
+  line-height: 1.55;
+}
+
+/* ---------- Data / trust section: reuses the stat-card treatment ---------- */
+
+.trust {
+  background: var(--card);
+  border-radius: 12px;
+  padding: 32px;
+}
+
+.trust h2 {
+  color: var(--paper);
+}
+
+.trust p.section-lede {
+  color: var(--paper);
+  opacity: 0.9;
+}
+
+.trust-grid {
+  margin-top: 24px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.trust-item {
+  border-top: 1px solid rgba(191, 215, 234, 0.35);
+  padding-top: 12px;
+}
+
+.trust-item .label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--paper);
+  font-weight: 800;
+}
+
+.trust-item p {
+  margin-top: 8px;
+  font-size: 13.5px;
+  color: var(--paper);
+  opacity: 0.92;
+  line-height: 1.55;
+}
+
+/* ---------- Footer ---------- */
+
+footer {
+  border-top: 1px solid rgba(45, 55, 72, 0.12);
+  padding: 26px 0 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--light-ink);
+}
+
+footer .foot-links {
+  display: flex;
+  gap: 18px;
+}
+
+footer a {
+  text-decoration: none;
+  color: var(--light-ink);
+  font-weight: 500;
+}
+
+footer a:hover {
+  color: var(--warning);
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 760px) {
+  .hero { grid-template-columns: 1fr; padding-top: 20px; }
+  .hero h1 { font-size: 30px; max-width: 100%; }
+  .hero p.lede { max-width: 100%; }
+  .feature-grid { grid-template-columns: 1fr; }
+  .trust-grid { grid-template-columns: 1fr; }
+  .trust { padding: 22px; }
+  .topbar nav { gap: 12px; }
+  footer { flex-direction: column; gap: 12px; align-items: flex-start; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <meta charset="UTF-8" />
+ <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+ <meta name="google-site-verification" content="hkYUkE7Lv0brobwOGv0gkG-ewUBqZNpUAJCYsQ2TKYs" />
+ <title>ApplyLog Job Tracker</title>
+    <link rel="stylesheet" href="CSSExtension.css" />
+</head>
+<body>
+ <div class="container">
+   <div class="header">
+     <div class="logo">
+       <span class="logo-icon">
+        <img src="ApplyLogIcon.png" alt="ApplyLog Logo" width="33" class="png">
+      </span>
+       <h1 class="logo-name">ApplyLog</h1>
+     </div>
+     <div class="status-indicator" id="statusIndicator">
+       <span class="status-dot"></span>
+       <span class="status-text">Not connected</span>
+       <button class="import-icon-btn" id="importToggle" type="button" aria-label="Import from old spreadsheet">
+         ↥
+         <span class="import-tooltip">Import jobs from an old spreadsheet</span>
+       </button>
+     </div>
+   </div>
+
+<div class="connect-banner" id="connectBanner">
+  <div>
+    <div class="connect-banner-title">Connect Google Sheets</div>
+    <div class="connect-banner-sub">Sync your job applications</div>
+  </div>
+  <button class="btn-connect" id="connectBtn">Connect</button>
+</div>
+
+   <div class="stats-row" id="statsRow">
+     <div class="stat-card" id="statCardApplied">
+       <div class="stat-num" id="statAppliedCount">0</div>
+       <div class="stat-label">Applied</div>
+     </div>
+     <div class="stat-card" id="statCardSaved">
+       <div class="stat-num" id="statSavedCount">0</div>
+       <div class="stat-label">Saved</div>
+     </div>
+     <div class="stat-card" id="statCardProgress">
+       <div class="stat-num" id="statProgressCount">0</div>
+       <div class="stat-label">In Progress</div>
+     </div>
+   </div>
+
+   <div class="search-bar">
+     <input type="text" id="jobSearchInput" class="form-input" placeholder="Search by title or company…">
+   </div>
+
+   <div class="tabs">
+     <button class="tab active" data-tab="applied">Applied</button>
+     <button class="tab" data-tab="saved">Saved</button>
+     <button class="tab" data-tab="progress">Progress</button>
+   </div> 
+
+  <script src="SavedAndAppliedJobs.js"></script>
+
+
+   <div class="tab-content active" id="applied-content">
+     <div class="jobs-list" id="appliedJobs">
+       <div class="empty-state">
+         <p>No applied jobs yet</p>
+         <small>When you apply to a job use the Add Job button to track it.</small>
+       </div>
+     </div>
+   </div>
+
+   <div class="tab-content" id="saved-content">
+     <div class="jobs-list" id="savedJobs">
+       <div class="empty-state">
+         <p>No saved jobs yet</p>
+         <small>Save jobs to track them here.</small>
+       </div>
+     </div>
+   </div>
+
+   <div class="tab-content" id="progress-content">
+     <div class="jobs-list" id="progressJobs">
+       <div class="empty-state">
+         <p>No jobs in progress</p>
+         <small>Interviewing, offer, and rejected jobs will show up here.</small>
+       </div>
+     </div>
+   </div>
+
+   <div class="manual-entry">
+     <button class="manual-entry-toggle btn-add-job" id="manualEntryToggle" type="button">
+      Add Job
+     </button>
+     <form class="manual-entry-form" id="manualEntryForm" style="display: none;">
+       <input type="text" id="jobTitleInput" class="form-input" placeholder="Job title" required>
+       <input type="text" id="companyInput" class="form-input" placeholder="Company" required>
+       <div class="form-row">
+         <select id="statusInput" class="form-input">
+           <option value="Applied">Applied</option>
+           <option value="Saved">Saved</option>
+           <option value="Interviewing">Interviewing</option>
+           <option value="Offer">Offer</option>
+           <option value="Rejected">Rejected</option>
+         </select>
+         <select id="typeInput" class="form-input">
+           <option value="Internship">Internship</option>
+           <option value="Full-Time">Full-Time</option>
+           <option value="Part-Time">Part-Time</option>
+         </select>
+       </div>
+       <div class="form-row">
+         <input type="text" id="locationInput" class="form-input" placeholder="Location">
+         <input type="text" id="salaryInput" class="form-input" placeholder="Salary (optional)">
+       </div>
+       <div class="form-row">
+         <div class="field-with-label">
+           <label class="field-label" for="deadlineInput">Deadline</label>
+           <input type="date" id="deadlineInput" class="form-input">
+         </div>
+         <input type="url" id="linkInput" class="form-input" placeholder="Link (optional)">
+       </div>
+       <textarea id="notesInput" class="form-input" placeholder="Notes (optional)" rows="2"></textarea>
+       <button type="submit" class="btn-connect btn-manual-submit" id="manualSubmitBtn">Add to Sheet</button>
+       <div class="manual-feedback" id="manualFeedback"></div>
+     </form>
+   </div>
+
+   <div class="manual-entry manual-entry-compact" id="importFormWrapper">
+     <div class="manual-entry-form" id="importForm" style="display: none;">
+       <div class="field-with-label">
+         <label class="field-label" for="oldSheetInput">Old Spreadsheet Link or ID</label>
+         <input type="text" id="oldSheetInput" class="form-input" placeholder="https:docs.google.com/spreadsheets/d/...">
+       </div>
+       <button type="button" class="btn-connect btn-manual-submit" id="previewImportBtn">Preview Import</button>
+       <div id="importPreviewArea"></div>
+       <div class="manual-feedback" id="importFeedback"></div>
+     </div>
+   </div>
+
+   <div class="actions">
+     <button id="clearBtn" class="btn-ghost btn-ghost-danger">Clear All Applied</button>
+     <button id="disconnectBtn" class="btn-ghost btn-ghost-danger">Disconnect</button>
+   </div>
+
+   <div class="spreadsheet-link" id="spreadsheetLink" style="display: none;">
+     <a href="#" target="_blank" id="openSpreadsheet" class="btn-sheets">
+       Open Spreadsheet
+     </a>
+   </div>
+ </div>
+
+ <div class="modal-overlay" id="confirmModalOverlay" style="display: none;">
+   <div class="modal-card">
+     <div class="modal-title" id="confirmModalTitle">Are you sure?</div>
+     <div class="modal-message" id="confirmModalMessage"></div>
+     <div class="modal-actions">
+       <button class="btn-ghost" id="confirmModalCancel" type="button">Cancel</button>
+       <button class="btn-connect" id="confirmModalConfirm" type="button">Confirm</button>
+     </div>
+   </div>
+ </div>
+
+<script src="popup.js"></script>
+<script src="linkSpreadsheet.js"></script>
+<script src="formDraftPersistence.js"></script>
+</body>
+</html>

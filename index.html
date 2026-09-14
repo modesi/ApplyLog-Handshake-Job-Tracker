@@ -1,170 +1,123 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
- <meta charset="UTF-8" />
- <meta name="viewport" content="width=device-width, initial-scale=1.0" />
- <meta name="google-site-verification" content="hkYUkE7Lv0brobwOGv0gkG-ewUBqZNpUAJCYsQ2TKYs" />
- <title>ApplyLog Job Tracker</title>
-    <link rel="stylesheet" href="CSSExtension.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="google-site-verification" content="hkYUkE7Lv0brobwOGv0gkG-ewUBqZNpUAJCYsQ2TKYs" />
+  <meta name="description" content="ApplyLog is a Chrome extension that tracks your job and internship applications and syncs them straight to a Google Sheet in your own Google account." />
+  <title>ApplyLog — Track job applications, synced to your own Google Sheet</title>
+  <link rel="icon" href="ApplyLogIcon.png" />
+  <link rel="stylesheet" href="landing.css" />
 </head>
 <body>
-<a href="https://modesi.github.io/ApplyLog-Handshake-Job-Tracker/privacy.html">Privacy Policy</a>
- <div class="container">
-   <div class="header">
-     <div class="logo">
-       <span class="logo-icon">
-        <img src="ApplyLogIcon.png" alt="ApplyLog Logo" width="33" class="png">
-      </span>
-       <h1 class="logo-name">ApplyLog</h1>
-     </div>
-     <div class="status-indicator" id="statusIndicator">
-       <span class="status-dot"></span>
-       <span class="status-text">Not connected</span>
-       <button class="import-icon-btn" id="importToggle" type="button" aria-label="Import from old spreadsheet">
-         ↥
-         <span class="import-tooltip">Import jobs from an old spreadsheet</span>
-       </button>
-     </div>
-   </div>
 
-<div class="connect-banner" id="connectBanner">
-  <div>
-    <div class="connect-banner-title">Connect Google Sheets</div>
-    <div class="connect-banner-sub">Sync your job applications</div>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <img src="ApplyLogIcon.png" alt="ApplyLog logo" />
+        <span>ApplyLog</span>
+      </div>
+      <nav>
+        <a class="text-link" href="#how-it-works">How it works</a>
+        <a class="text-link" href="#data">Your data</a>
+        <a class="text-link" href="privacy.html">Privacy policy</a>
+        <a class="store-link" href="https://chromewebstore.google.com/detail/applylog-job-tracker/hllegimodgdopppnmichhfcbnnendoli" target="_blank" rel="noopener">Add to Chrome</a>
+      </nav>
+    </div>
   </div>
-  <button class="btn-connect" id="connectBtn">Connect</button>
-</div>
 
-   <div class="stats-row" id="statsRow">
-     <div class="stat-card" id="statCardApplied">
-       <div class="stat-num" id="statAppliedCount">0</div>
-       <div class="stat-label">Applied</div>
-     </div>
-     <div class="stat-card" id="statCardSaved">
-       <div class="stat-num" id="statSavedCount">0</div>
-       <div class="stat-label">Saved</div>
-     </div>
-     <div class="stat-card" id="statCardProgress">
-       <div class="stat-num" id="statProgressCount">0</div>
-       <div class="stat-label">In Progress</div>
-     </div>
-   </div>
+  <div class="wrap">
+    <div class="hero">
+      <div>
+        <h1>Every job you apply to, already in a spreadsheet.</h1>
+        <p class="lede">
+          ApplyLog is a free Chrome extension for job and internship hunters. Add a job in one click
+          and it's saved straight to a Google Sheet in your own account — no separate tracker to
+          keep updating by hand.
+        </p>
+        <div class="hero-ctas">
+          <a class="btn-primary" href="https://chromewebstore.google.com/detail/applylog-job-tracker/hllegimodgdopppnmichhfcbnnendoli" target="_blank" rel="noopener">Add to Chrome — it's free</a>
+          <a class="btn-secondary" href="https://github.com/modesi/ApplyLog-Handshake-Job-Tracker" target="_blank" rel="noopener">View source on GitHub</a>
+        </div>
+      </div>
+      <div class="hero-shot">
+        <img src="ApplyLog Example.png" alt="ApplyLog popup showing applied, saved, and in-progress job applications" />
+      </div>
+    </div>
+  </div>
 
-   <div class="search-bar">
-     <input type="text" id="jobSearchInput" class="form-input" placeholder="Search by title or company…">
-   </div>
+  <div class="wrap">
+    <section class="section" id="how-it-works">
+      <h2>What ApplyLog does</h2>
+      <p class="section-lede">
+        Click the extension icon, connect your Google account once, and ApplyLog handles the
+        spreadsheet for you — creating it, formatting it, and keeping it organized as you apply.
+      </p>
 
-   <div class="tabs">
-     <button class="tab active" data-tab="applied">Applied</button>
-     <button class="tab" data-tab="saved">Saved</button>
-     <button class="tab" data-tab="progress">Progress</button>
-   </div> 
+      <dl class="feature-grid">
+        <div class="feature">
+          <dt>Syncs to your own Google Sheet</dt>
+          <dd>ApplyLog creates a spreadsheet called "ApplyLog - Job Applications" in your Google Drive and formats it automatically — header row, column widths, status colors, dropdowns, and filters.</dd>
+        </div>
+        <div class="feature">
+          <dt>Add jobs in seconds</dt>
+          <dd>A short form — title, company, status, type, location, salary, deadline, link, notes — appends a new row to your sheet the moment you submit it.</dd>
+        </div>
+        <div class="feature">
+          <dt>Organized by stage</dt>
+          <dd>Applications are grouped into Applied, Saved, and In Progress (interviewing, offer, rejected), read live from your sheet so it's always up to date.</dd>
+        </div>
+        <div class="feature">
+          <dt>Search and stats</dt>
+          <dd>Filter by title or company, and see at-a-glance counts for each stage of your search without opening the spreadsheet.</dd>
+        </div>
+        <div class="feature">
+          <dt>Import an old spreadsheet</dt>
+          <dd>Already tracking applications somewhere else? Paste a link or ID and ApplyLog matches its columns to your ApplyLog sheet, shows a preview, and imports the rows.</dd>
+        </div>
+        <div class="feature">
+          <dt>Nothing lost on close</dt>
+          <dd>In-progress form entries are auto-saved, so closing the popup mid-entry doesn't lose your draft.</dd>
+        </div>
+      </dl>
+    </section>
+  </div>
 
-  <script src="SavedAndAppliedJobs.js"></script>
+  <div class="wrap">
+    <section class="section" id="data">
+      <div class="trust">
+        <h2>How ApplyLog uses your Google account</h2>
+        <p class="section-lede">
+          ApplyLog only ever touches the one spreadsheet it makes for you. Here's exactly what that means.
+        </p>
+        <div class="trust-grid">
+          <div class="trust-item">
+            <div class="label">What it accesses</div>
+            <p>Google Sheets and Google Drive, scoped to the single "ApplyLog - Job Applications" spreadsheet it creates in your account.</p>
+          </div>
+          <div class="trust-item">
+            <div class="label">What it doesn't do</div>
+            <p>ApplyLog never reads, browses, or touches any other file in your Drive, and never sends your data anywhere but that one sheet.</p>
+          </div>
+          <div class="trust-item">
+            <div class="label">Your control</div>
+            <p>Disconnect at any time from the extension popup to revoke access and clear cached tokens. Your spreadsheet stays in your Drive either way.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
 
+  <div class="wrap">
+    <footer>
+      <span>ApplyLog is a free, open-source Chrome extension.</span>
+      <div class="foot-links">
+        <a href="https://github.com/modesi/ApplyLog-Handshake-Job-Tracker" target="_blank" rel="noopener">GitHub</a>
+        <a href="privacy.html">Privacy policy</a>
+        <a href="https://chromewebstore.google.com/detail/applylog-job-tracker/hllegimodgdopppnmichhfcbnnendoli" target="_blank" rel="noopener">Chrome Web Store</a>
+      </div>
+    </footer>
+  </div>
 
-   <div class="tab-content active" id="applied-content">
-     <div class="jobs-list" id="appliedJobs">
-       <div class="empty-state">
-         <p>No applied jobs yet</p>
-         <small>When you apply to a job use the Add Job button to track it.</small>
-       </div>
-     </div>
-   </div>
-
-   <div class="tab-content" id="saved-content">
-     <div class="jobs-list" id="savedJobs">
-       <div class="empty-state">
-         <p>No saved jobs yet</p>
-         <small>Save jobs to track them here.</small>
-       </div>
-     </div>
-   </div>
-
-   <div class="tab-content" id="progress-content">
-     <div class="jobs-list" id="progressJobs">
-       <div class="empty-state">
-         <p>No jobs in progress</p>
-         <small>Interviewing, offer, and rejected jobs will show up here.</small>
-       </div>
-     </div>
-   </div>
-
-   <div class="manual-entry">
-     <button class="manual-entry-toggle btn-add-job" id="manualEntryToggle" type="button">
-      Add Job
-     </button>
-     <form class="manual-entry-form" id="manualEntryForm" style="display: none;">
-       <input type="text" id="jobTitleInput" class="form-input" placeholder="Job title" required>
-       <input type="text" id="companyInput" class="form-input" placeholder="Company" required>
-       <div class="form-row">
-         <select id="statusInput" class="form-input">
-           <option value="Applied">Applied</option>
-           <option value="Saved">Saved</option>
-           <option value="Interviewing">Interviewing</option>
-           <option value="Offer">Offer</option>
-           <option value="Rejected">Rejected</option>
-         </select>
-         <select id="typeInput" class="form-input">
-           <option value="Internship">Internship</option>
-           <option value="Full-Time">Full-Time</option>
-           <option value="Part-Time">Part-Time</option>
-         </select>
-       </div>
-       <div class="form-row">
-         <input type="text" id="locationInput" class="form-input" placeholder="Location">
-         <input type="text" id="salaryInput" class="form-input" placeholder="Salary (optional)">
-       </div>
-       <div class="form-row">
-         <div class="field-with-label">
-           <label class="field-label" for="deadlineInput">Deadline</label>
-           <input type="date" id="deadlineInput" class="form-input">
-         </div>
-         <input type="url" id="linkInput" class="form-input" placeholder="Link (optional)">
-       </div>
-       <textarea id="notesInput" class="form-input" placeholder="Notes (optional)" rows="2"></textarea>
-       <button type="submit" class="btn-connect btn-manual-submit" id="manualSubmitBtn">Add to Sheet</button>
-       <div class="manual-feedback" id="manualFeedback"></div>
-     </form>
-   </div>
-
-   <div class="manual-entry manual-entry-compact" id="importFormWrapper">
-     <div class="manual-entry-form" id="importForm" style="display: none;">
-       <div class="field-with-label">
-         <label class="field-label" for="oldSheetInput">Old Spreadsheet Link or ID</label>
-         <input type="text" id="oldSheetInput" class="form-input" placeholder="https:docs.google.com/spreadsheets/d/...">
-       </div>
-       <button type="button" class="btn-connect btn-manual-submit" id="previewImportBtn">Preview Import</button>
-       <div id="importPreviewArea"></div>
-       <div class="manual-feedback" id="importFeedback"></div>
-     </div>
-   </div>
-
-   <div class="actions">
-     <button id="clearBtn" class="btn-ghost btn-ghost-danger">Clear All Applied</button>
-     <button id="disconnectBtn" class="btn-ghost btn-ghost-danger">Disconnect</button>
-   </div>
-
-   <div class="spreadsheet-link" id="spreadsheetLink" style="display: none;">
-     <a href="#" target="_blank" id="openSpreadsheet" class="btn-sheets">
-       Open Spreadsheet
-     </a>
-   </div>
- </div>
-
- <div class="modal-overlay" id="confirmModalOverlay" style="display: none;">
-   <div class="modal-card">
-     <div class="modal-title" id="confirmModalTitle">Are you sure?</div>
-     <div class="modal-message" id="confirmModalMessage"></div>
-     <div class="modal-actions">
-       <button class="btn-ghost" id="confirmModalCancel" type="button">Cancel</button>
-       <button class="btn-connect" id="confirmModalConfirm" type="button">Confirm</button>
-     </div>
-   </div>
- </div>
-
-<script src="popup.js"></script>
-<script src="linkSpreadsheet.js"></script>
-<script src="formDraftPersistence.js"></script>
 </body>
 </html>
