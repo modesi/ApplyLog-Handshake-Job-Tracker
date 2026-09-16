@@ -14,7 +14,7 @@ A Chrome extension that helps you track job and internship applications and auto
 - **Tabs by stage:**  Applications are grouped into **Applied**, **Saved**, and **In Progress** (interviewing/offer/rejected), pulled live from the sheet.
 - **Search:**  Filter the current tab's jobs by title or company.
 - **Stats row:**  At-a-glance counts of Applied / Saved / In Progress jobs.
-- **Import from an old spreadsheet:**  Paste a link or ID to a spreadsheet you were already using; ApplyLog fuzzy-matches its columns (title, company, status, etc.) to its own schema, shows you a preview of the mapping, and imports the rows keeping any columns it doesn't recognize instead of discarding them.
+- **Import from an old spreadsheet:**  Pick a spreadsheet you were already using via Google's file picker (opens in a new tab, so ApplyLog only ever gets access to the file you choose); ApplyLog fuzzy-matches its columns (title, company, status, etc.) to its own schema, shows you a preview of the mapping, and imports the rows keeping any columns it doesn't recognize instead of discarding them.
 - **Draft auto-save:**  See `Form Draft Persistence below`; in-progress form entries survive the popup closing.
 - **Disconnect / Clear:**  Revoke access and clear cached tokens, or clear applied/saved/in-progress jobs per tab, with a confirmation modal for destructive actions.
 
@@ -23,12 +23,15 @@ A Chrome extension that helps you track job and internship applications and auto
 | File | Purpose |
 |---|---|
 | `manifest.json` | Extension manifest (MV3): permissions, OAuth2 config, and the extension `key` (keeps the extension ID stable across unpacked reloads). |
-| `index.html` | Popup UI markup - header, connect banner, stats, tabs, add-job form, import form. |
+| `popup.html` | Extension popup UI markup - header, connect banner, stats, tabs, add-job form, import form. |
+| `index.html` | Landing/marketing page (GitHub Pages), not part of the packaged extension. |
 | `CSSExtension.css` | All popup styling. |
+| `landing.css` | Styling for `index.html`. |
 | `popup.js` | Core popup logic: OAuth flow, connection status, spreadsheet creation/styling, manual entry submission, disconnect flow, confirm/info modals. |
 | `SavedAndAppliedJobs.js` | Reads job rows from the sheet, renders them into the Applied/Saved/Progress tabs, handles search filtering and per-tab clearing. |
-| `linkSpreadsheet.js` | Import-from-old-spreadsheet feature: header detection/fuzzy-matching, preview UI, and writing matched + unmatched columns into the ApplyLog sheet. |
-| `background.js` | MV3 service worker. Brokers `chrome.identity.getAuthToken` requests from the popup (identity APIs aren't directly available in all popup contexts). |
+| `linkSpreadsheet.js` | Import-from-old-spreadsheet feature: opens the hosted Picker, header detection/fuzzy-matching, preview UI, and writing matched + unmatched columns into the ApplyLog sheet. |
+| `picker.html` | Hosted (GitHub Pages) page that runs the Google Picker UI. Runs outside the extension's CSP so it can load `apis.google.com`; relays the chosen file back via `externally_connectable`. |
+| `background.js` | MV3 service worker. Brokers `chrome.identity.getAuthToken` requests from the popup, and relays the Picker's result from `picker.html` into storage for the popup to pick up. |
 | `formDraftPersistence.js` | Auto-saves and restores the "Add Job" form so in-progress entries aren't lost when the popup closes. See below. |
 
 ## Setup
@@ -48,9 +51,10 @@ A Chrome extension that helps you track job and internship applications and auto
 
 ## Permissions Used
 
-- `identity` - OAuth sign-in via `chrome.identity.getAuthToken`.
-- `storage` - Caches the connected spreadsheet ID, sheet formatting version/gid, and (now) form drafts.
+- `identity` - OAuth sign-in via `chrome.identity.getAuthToken`, requesting only the `drive.file` scope (per-file access to spreadsheets ApplyLog creates or that you pick via Google's file picker).
+- `storage` - Caches the connected spreadsheet ID, sheet formatting version/gid, form drafts, and (briefly) the result of a Picker selection.
 - `https://www.googleapis.com/*`, `https://sheets.googleapis.com/*` - Reading/writing the Google Sheet via the Sheets API.
+- `externally_connectable` - Lets `picker.html`, hosted on this project's GitHub Pages domain, send the picked file back to the extension.
 
 ## AI Assistance
 

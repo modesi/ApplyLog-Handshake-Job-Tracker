@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ApplyLog - Choose a Spreadsheet</title>
+<style>
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+    background: #f7f7f8;
+    color: #1a1a1a;
+  }
+  .box { text-align: center; max-width: 360px; padding: 0 20px; }
+  .logo { font-weight: 700; font-size: 1.1em; margin-bottom: 12px; }
+  .status { color: #555; font-size: 0.95em; line-height: 1.5; }
+  .error { color: #c1121f; }
+</style>
+</head>
+<body>
+  <div class="box">
+    <div class="logo">ApplyLog</div>
+    <div id="status" class="status">Opening file picker…</div>
+  </div>
+
+  <!-- Allowed to load here: this page is NOT inside the extension's CSP.
+       Do not copy this <script> tag into any extension-packaged file. -->
+  <script src="https://apis.google.com/js/api.js"></script>
+  <script>
+    // Substituted at deploy time by .github/workflows/deploy.yml from the
+    // PICKER_API_KEY repository secret. Never hardcode a real key here.
+    const PICKER_API_KEY = '__PICKER_API_KEY__';
+
+    // Fixed extension ID, derived from the "key" field in manifest.json
+    // (same ID the extension already publishes under on the Chrome Web Store).
+    const EXTENSION_ID = 'hllegimodgdopppnmichhfcbnnendoli';
+
+    function setStatus(msg, isError) {
+      const el = document.getElementById('status');
+      el.textContent = msg;
+      el.className = 'status' + (isError ? ' error' : '');
+    }
+
+    function getTokenFromUrl() {
+      const hash = window.location.hash.startsWith('#')
+        ? window.location.hash.slice(1)
+        : window.location.hash;
+      return new URLSearchParams(hash).get('token');
+    }
+
+    function sendResultToExtension(payload) {
+      if (!(window.chrome && chrome.runtime && chrome.runtime.sendMessage)) {
+        setStatus('Could not reach the ApplyLog extension. Close this tab and try again from the extension.', true);
+        return;
+      }
+      chrome.runtime.sendMessage(EXTENSION_ID, payload, () => {
+        // chrome.runtime.lastError is ignored here on purpose - even if the
+        // popup isn't open to receive it live, background.js still stores it.
+        setStatus(
+          payload.type === 'oldSheetPicked'
+            ? `Selected "${payload.fileName}" — you can close this tab and go back to ApplyLog.`
+            : 'Cancelled — you can close this tab.'
+        );
+      });
+    }
+
+    function createPicker(token) {
+      gapi.load('picker', () => {
+        const view = new google.picker.DocsView(google.picker.ViewId.SPREADSHEETS)
+          .setMimeTypes('application/vnd.google-apps.spreadsheet');
+
+        const picker = new google.picker.PickerBuilder()
+          .setOAuthToken(token)
+          .setDeveloperKey(PICKER_API_KEY)
+          .addView(view)
+          .setCallback((data) => {
+            if (data.action === google.picker.Action.PICKED) {
+              const doc = data.docs[0];
+              sendResultToExtension({ type: 'oldSheetPicked', fileId: doc.id, fileName: doc.name });
+            } else if (data.action === google.picker.Action.CANCEL) {
+              sendResultToExtension({ type: 'oldSheetPickCancelled' });
+            }
+          })
+          .build();
+
+        picker.setVisible(true);
+        setStatus('Choose a spreadsheet…');
+      });
+    }
+
+    const token = getTokenFromUrl();
+    if (!token) {
+      setStatus('Missing access token. Close this tab and try again from the extension.', true);
+    } else {
+      createPicker(token);
+    }
+  </script>
+</body>
+</html>

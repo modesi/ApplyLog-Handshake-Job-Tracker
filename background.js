@@ -14,3 +14,19 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true;
   }
 });
+
+chrome.runtime.onMessageExternal.addListener((message, sender, sendResponse) => {
+  if (!message || !message.type) return;
+
+  if (message.type === 'oldSheetPicked') {
+    chrome.storage.local.set({
+      pendingOldSheetPick: { fileId: message.fileId, fileName: message.fileName, ts: Date.now() }
+    }, () => sendResponse({ received: true }));
+    return true;
+  }
+
+  if (message.type === 'oldSheetPickCancelled') {
+    chrome.storage.local.remove('pendingOldSheetPick', () => sendResponse({ received: true }));
+    return true;
+  }
+});
