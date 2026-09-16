@@ -25,17 +25,16 @@
 <body>
 
 <h1>Privacy Policy for ApplyLog</h1>
-<p class="updated">Last updated: September 14, 2026</p>
+<p class="updated">Last updated: September 16, 2026</p>
 
 <p>ApplyLog ("the extension," "we," "our") is a Chrome extension that helps you track job and internship applications and sync them to a Google Sheet in your own Google Drive. This policy explains what data ApplyLog accesses, how it's used, and your choices.</p>
 
 <h2>Data We Access</h2>
 
 <h3>Google Account Data (via OAuth)</h3>
-<p>When you click "Connect," ApplyLog uses Google's sign-in (<code>chrome.identity</code>) to request permission for the following scopes:</p>
+<p>When you click "Connect," ApplyLog uses Google's sign-in (<code>chrome.identity</code>) to request permission for a single scope:</p>
 <ul>
-  <li><strong>https://www.googleapis.com/auth/spreadsheets</strong> — lets ApplyLog create, read, and write rows in the Google Sheet it uses to store your job/internship entries (titles, companies, statuses, dates, links, notes, etc.).</li>
-  <li><strong>https://www.googleapis.com/auth/drive.file</strong> — a limited Drive scope that only lets ApplyLog see and manage the specific spreadsheet(s) it creates or that you explicitly connect. It cannot browse or access any other files in your Drive.</li>
+  <li><strong>https://www.googleapis.com/auth/drive.file</strong> — a limited Drive scope that only lets ApplyLog see and manage the specific spreadsheet(s) it creates, or that you explicitly select yourself through Google's own file picker. It cannot browse, search, or access any other files in your Drive.</li>
 </ul>
 <p>We do not request access to your email address, contacts, calendar, or any other Google data beyond what's listed above.</p>
 
@@ -51,7 +50,7 @@
 <p>This data stays within your Chrome profile and Google's own sync infrastructure for Chrome — it is not sent to us.</p>
 
 <h3>Import Feature</h3>
-<p>If you use the "Import from an old spreadsheet" feature, ApplyLog reads the spreadsheet you specify (via the Sheets API, using the same OAuth token) to detect and map its columns, then writes the matched rows into your ApplyLog sheet. This only accesses spreadsheets you explicitly provide a link or ID for.</p>
+<p>If you use the "Import from an old spreadsheet" feature, you select the old spreadsheet yourself through Google's own file picker (opened in a new browser tab). That selection is what grants ApplyLog access to that one file — ApplyLog cannot browse your Drive to find it on its own. ApplyLog then reads that spreadsheet (via the Sheets API, using the same OAuth token) to detect and map its columns, and writes the matched rows into your ApplyLog sheet.</p>
 
 <h2>How We Use Your Data</h2>
 <p>We use the Google user data described above solely to provide and operate ApplyLog's core functionality. Specifically:</p>

@@ -130,10 +130,11 @@
    <div class="manual-entry manual-entry-compact" id="importFormWrapper">
      <div class="manual-entry-form" id="importForm" style="display: none;">
        <div class="field-with-label">
-         <label class="field-label" for="oldSheetInput">Old Spreadsheet Link or ID</label>
-         <input type="text" id="oldSheetInput" class="form-input" placeholder="https:docs.google.com/spreadsheets/d/...">
+         <label class="field-label">Old Spreadsheet</label>
+         <button type="button" class="btn-ghost" id="chooseOldSheetBtn">Choose Spreadsheet…</button>
+         <div class="manual-feedback" id="oldSheetChosenName"></div>
        </div>
-       <button type="button" class="btn-connect btn-manual-submit" id="previewImportBtn">Preview Import</button>
+       <button type="button" class="btn-connect btn-manual-submit" id="previewImportBtn" disabled>Preview Import</button>
        <div id="importPreviewArea"></div>
        <div class="manual-feedback" id="importFeedback"></div>
      </div>

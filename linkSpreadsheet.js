@@ -25,6 +25,12 @@ const IMPORT_FIELD_ALIASES = {
 };
 
 let pendingImport = null;
+let chosenOldSheet = null; // { fileId, fileName } set once the user picks a file
+
+// Hosted page that runs the Google Picker (can't run inside the popup itself -
+// Manifest V3's CSP blocks loading https://apis.google.com/js/api.js in
+// extension pages). See background.js for how the pick result gets back here.
+const PICKER_URL = 'https://modesi.github.io/ApplyLog-Handshake-Job-Tracker/picker.html';
 
 document.addEventListener('DOMContentLoaded', () => {
     const importToggle = document.getElementById('importToggle');
@@ -40,7 +46,63 @@ document.addEventListener('DOMContentLoaded', () => {
     if (previewBtn) {
         previewBtn.addEventListener('click', previewImport);
     }
+
+    const chooseBtn = document.getElementById('chooseOldSheetBtn');
+    if (chooseBtn) {
+        chooseBtn.addEventListener('click', openOldSheetPicker);
+    }
+
+    // The picker runs in its own tab, and the popup closes the moment that tab
+    // gets focus - so on every popup open, check whether background.js has a
+    // pick result waiting for us in storage.
+    checkForPendingOldSheetPick();
 });
+
+function checkForPendingOldSheetPick() {
+    chrome.storage.local.get(['pendingOldSheetPick'], (result) => {
+        const pick = result.pendingOldSheetPick;
+        if (!pick || !pick.fileId) return;
+
+        chrome.storage.local.remove('pendingOldSheetPick');
+        setChosenOldSheet(pick.fileId, pick.fileName);
+
+        // Reopen the import panel so the result is visible.
+        const importForm = document.getElementById('importForm');
+        if (importForm) importForm.style.display = 'flex';
+    });
+}
+
+function setChosenOldSheet(fileId, fileName) {
+    chosenOldSheet = { fileId, fileName };
+    pendingImport = null;
+
+    const nameEl = document.getElementById('oldSheetChosenName');
+    if (nameEl) nameEl.textContent = fileName ? `Selected: ${fileName}` : 'Spreadsheet selected';
+
+    const previewBtn = document.getElementById('previewImportBtn');
+    if (previewBtn) previewBtn.disabled = false;
+
+    const previewArea = document.getElementById('importPreviewArea');
+    if (previewArea) previewArea.innerHTML = '';
+
+    setFeedback(document.getElementById('importFeedback'), '', '');
+}
+
+function openOldSheetPicker() {
+    const feedbackEl = document.getElementById('importFeedback');
+    setFeedback(feedbackEl, 'Opening file picker…', '');
+
+    requestAuthToken(true, (token, error) => {
+        if (error || !token) {
+            setFeedback(feedbackEl, 'Authentication failed. Try reconnecting.', 'error');
+            return;
+        }
+        // Token goes in the URL fragment (not a query string) so it's never
+        // sent to or logged by the server hosting picker.html.
+        chrome.tabs.create({ url: `${PICKER_URL}#token=${encodeURIComponent(token)}` });
+        setFeedback(feedbackEl, 'Choose a spreadsheet in the new tab, then come back here.', '');
+    });
+}
 
 function normalizeHeader(h) {
     return (h || '').toString().toLowerCase().trim()
@@ -63,15 +125,6 @@ function detectField(header) {
     return null;
 }
 
-// Pulls a spreadsheet ID out of a full Google Sheets URL, or accepts a raw ID.
-function extractSpreadsheetId(input) {
-    const trimmed = (input || '').trim();
-    const urlMatch = trimmed.match(/\/d\/([a-zA-Z0-9-_]+)/);
-    if (urlMatch) return urlMatch[1];
-    if (/^[a-zA-Z0-9-_]{20,}$/.test(trimmed)) return trimmed;
-    return null;
-}
-
 // STEP 1: read the old spreadsheet and show the user how its columns will map.
 function previewImport() {
     const feedbackEl = document.getElementById('importFeedback');
@@ -79,13 +132,11 @@ function previewImport() {
     previewArea.innerHTML = '';
     pendingImport = null;
 
-    const input = document.getElementById('oldSheetInput').value;
-    const oldSpreadsheetId = extractSpreadsheetId(input);
-
-    if (!oldSpreadsheetId) {
-        setFeedback(feedbackEl, 'Paste a valid Google Sheets link or ID.', 'error');
+    if (!chosenOldSheet || !chosenOldSheet.fileId) {
+        setFeedback(feedbackEl, 'Choose a spreadsheet first.', 'error');
         return;
     }
+    const oldSpreadsheetId = chosenOldSheet.fileId;
 
     chrome.storage.sync.get(['spreadsheetId'], (result) => {
         if (!result.spreadsheetId) {
@@ -148,8 +199,9 @@ function previewImport() {
 }
 
 // Fetches the first sheet's title and full used range of values from the old spreadsheet.
-// Uses the broad "spreadsheets" OAuth scope already granted, so it can read any
-// sheet the user has access to — not just ones this extension created.
+// Works under the narrow drive.file scope because the user granted per-file
+// access to this specific spreadsheet by selecting it in the Google Picker
+// (see openOldSheetPicker / picker.html) - not because of a broad scope.
 function fetchOldSheetValues(spreadsheetId, token, callback) {
     const metaUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}?fields=sheets.properties`;
 
@@ -299,7 +351,11 @@ function confirmImport() {
                                 : `✅ Imported ${rowsToAppend.length} job(s).`;
                             setFeedback(feedbackEl, summary, 'success');
                             document.getElementById('importPreviewArea').innerHTML = '';
-                            document.getElementById('oldSheetInput').value = '';
+                            const nameEl = document.getElementById('oldSheetChosenName');
+                            if (nameEl) nameEl.textContent = '';
+                            const previewBtn = document.getElementById('previewImportBtn');
+                            if (previewBtn) previewBtn.disabled = true;
+                            chosenOldSheet = null;
                             pendingImport = null;
                             if (typeof loadJobsFromSheet === 'function') loadJobsFromSheet();
                         };
