@@ -30,7 +30,7 @@ let chosenOldSheet = null; // { fileId, fileName } set once the user picks a fil
 // Hosted page that runs the Google Picker (can't run inside the popup itself -
 // Manifest V3's CSP blocks loading https://apis.google.com/js/api.js in
 // extension pages). See background.js for how the pick result gets back here.
-const PICKER_URL = 'https://modesi.github.io/ApplyLog-Handshake-Job-Tracker/picker.html';
+const PICKER_URL = 'https://applylogtracker.com/picker.html';
 
 document.addEventListener('DOMContentLoaded', () => {
     const importToggle = document.getElementById('importToggle');
