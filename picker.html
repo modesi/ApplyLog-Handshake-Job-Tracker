@@ -27,7 +27,8 @@
     <div id="status" class="status">Opening file picker…</div>
   </div>
 
-
+  <!-- Allowed to load here: this page is NOT inside the extension's CSP.
+       Do not copy this <script> tag into any extension-packaged file. -->
   <script src="https://apis.google.com/js/api.js"></script>
   <script>
     // Substituted at deploy time by .github/workflows/deploy.yml from the
@@ -67,6 +68,13 @@
       });
     }
 
+    // Google Cloud project number - the numeric prefix of the OAuth client ID
+    // in manifest.json (292911840518-....apps.googleusercontent.com).
+    // Required for a drive.file grant on a Picker-selected file to actually
+    // register for this app; without it, selection succeeds in the UI but
+    // subsequent API calls to that file are rejected.
+    const APP_ID = '292911840518';
+
     function createPicker(token) {
       gapi.load('picker', () => {
         const view = new google.picker.DocsView(google.picker.ViewId.SPREADSHEETS)
@@ -75,6 +83,7 @@
         const picker = new google.picker.PickerBuilder()
           .setOAuthToken(token)
           .setDeveloperKey(PICKER_API_KEY)
+          .setAppId(APP_ID)
           .addView(view)
           .setCallback((data) => {
             if (data.action === google.picker.Action.PICKED) {
